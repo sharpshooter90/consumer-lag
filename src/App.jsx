@@ -364,16 +364,6 @@ const KafkaDiagramAndChart = () => {
     setModalData(null);
   }, []);
 
-  const formattedChartData = useMemo(
-    () =>
-      chartData.map((point) =>
-        Object.keys(point)
-          .filter((key) => key !== "time")
-          .map((key) => ({ time: point.time, lag: point[key], key }))
-      ),
-    [chartData]
-  );
-
   const applyFilters = () => {
     const newData = generateMockData();
     setChartData(newData);
@@ -383,12 +373,16 @@ const KafkaDiagramAndChart = () => {
     applyFilters();
   }, []);
 
-  const handleLineHover = useCallback((key) => {
+  const [tooltipData, setTooltipData] = useState(null);
+
+  const handleLineHover = useCallback((key, time, lag) => {
     setHoveredLine(key);
+    setTooltipData({ key, time, lag });
   }, []);
 
   const handleLineLeave = useCallback(() => {
     setHoveredLine(null);
+    setTooltipData(null);
   }, []);
 
   return (
@@ -598,134 +592,125 @@ const KafkaDiagramAndChart = () => {
       <div className="mt-8">
         <h3 className="text-xl font-bold mb-4">Consumer Lag Chart</h3>
         <svg width="800" height="400" viewBox="0 0 800 400">
-          {/* X and Y axes */}
-          <line x1="50" y1="350" x2="750" y2="350" stroke="black" />
-          <line x1="50" y1="350" x2="50" y2="50" stroke="black" />
+          <g // Wrap lines and points in a group for hover events
+            onMouseEnter={(e) => {
+              const pointIndex = Math.floor((e.clientX - 50) / 70);
+              const hoveredKey = Object.keys(chartData[pointIndex]).find(
+                (key) => key !== "time"
+              );
+              const point = chartData[pointIndex];
+              handleLineHover(hoveredKey, point.time, point[hoveredKey]);
+            }}
+            onMouseLeave={handleLineLeave}
+          >
+            {/* X and Y axes */}
+            <line x1="50" y1="350" x2="750" y2="350" stroke="black" />
+            <line x1="50" y1="350" x2="50" y2="50" stroke="black" />
+            {/* Horizontal gridlines for y-axis steps */}
+            {[0, 250, 500, 750, 1000].map((value, index) => (
+              <line
+                key={index}
+                x1="50" // Start at the beginning of the chart area
+                y1={350 - value / 3} // Scale the y-value to the chart's coordinates
+                x2="750" // Extend to the end of the chart area
+                y2={350 - value / 3}
+                stroke="lightgray"
+                strokeDasharray="4"
+              />
+            ))}
+            {/* Chart lines and points */}
+            {chartData.length > 0 &&
+              Object.keys(chartData[0])
+                .filter((key) => key !== "time")
+                .map((key, index) => (
+                  <g
+                    key={key}
+                    onMouseEnter={(e) => {
+                      const point = chartData[Math.floor(e.clientX / 70)];
+                      handleLineHover(key, point.time, point[key]);
+                    }}
+                    onMouseLeave={handleLineLeave}
+                  >
+                    <path
+                      d={chartData
+                        .map(
+                          (point, i) =>
+                            `${i === 0 ? "M" : "L"} ${50 + i * 70} ${
+                              350 - point[key] / 3
+                            }`
+                        )
+                        .join(" ")}
+                      fill="none"
+                      stroke={groupColors[key.split("-")[0]]}
+                      strokeWidth="2"
+                      opacity={
+                        hoveredLine ? (hoveredLine === key ? 1 : 0.2) : 1
+                      }
+                      cursor="pointer" // Indicate interactive area
+                      onClick={() => handleLineClick(key)}
+                    />
+                  </g>
+                ))}
+            {/* Threshold Line */}
+            <ThresholdLine
+              chartWidth={750}
+              chartHeight={300}
+              maxValue={1000}
+              onThresholdChange={handleThresholdChange}
+              xOffset={50}
+              yOffset={17}
+              bottomOffset={350}
+            />
+            {/* X-axis labels */}
+            {chartData.map((point, index) => (
+              <text key={index} x={50 + index * 70} y="370" textAnchor="middle">
+                {point.time}
+              </text>
+            ))}
 
-          {/* Chart lines and points */}
-          {chartData.length > 0 &&
-            Object.keys(chartData[0])
-              .filter((key) => key !== "time")
-              .map((key, index) => (
-                <g
-                  key={key}
-                  onMouseEnter={() => handleLineHover(key)}
-                  onMouseLeave={handleLineLeave}
+            {/* Y-axis labels */}
+            {[0, 250, 500, 750, 1000].map((value, index) => (
+              <text
+                key={index}
+                x="40"
+                y={350 - value / 3}
+                textAnchor="end"
+                alignmentBaseline="middle"
+              >
+                {value}
+              </text>
+            ))}
+            {/* Tooltip */}
+            {tooltipData && (
+              <div
+                className="absolute bg-white border p-2 rounded shadow-md"
+                style={{
+                  left: Math.min(
+                    700, // Limit to chart area width
+                    Math.max(
+                      50, // Keep within chart area
+                      50 + chartData.indexOf(tooltipData.time) * 70 - 50
+                    )
+                  ),
+                  top: Math.min(
+                    350, // Limit to chart area height
+                    Math.max(50, 350 - tooltipData.lag / 3 - 30) // Keep within chart area and above line
+                  ),
+                  zIndex: 10,
+                }}
+              >
+                <div>
+                  {tooltipData.key}: {tooltipData.lag}
+                </div>
+                <div
+                  className="text-blue-500 underline cursor-pointer"
+                  onClick={() => handleLineClick(tooltipData.key)}
                 >
-                  <path
-                    d={chartData
-                      .map(
-                        (point, i) =>
-                          `${i === 0 ? "M" : "L"} ${50 + i * 70} ${
-                            350 - point[key] / 3
-                          }`
-                      )
-                      .join(" ")}
-                    fill="none"
-                    stroke={groupColors[key.split("-")[0]]}
-                    strokeWidth="2"
-                    opacity={
-                      hoveredLine === null || hoveredLine === key ? 1 : 0.2
-                    }
-                  />
-                  {hoveredLine === key &&
-                    chartData.map((point, i) => (
-                      <g key={i}>
-                        <circle
-                          cx={50 + i * 70}
-                          cy={350 - point[key] / 3}
-                          r="4"
-                          fill={groupColors[key.split("-")[0]]}
-                        />
-                        <text
-                          x={50 + i * 70}
-                          y={340 - point[key] / 3}
-                          textAnchor="middle"
-                          fill={groupColors[key.split("-")[0]]}
-                          fontSize="12"
-                        >
-                          {point[key]}
-                        </text>
-                      </g>
-                    ))}
-                </g>
-              ))}
-          {/* Tooltips */}
-          {formattedChartData.length > 0 &&
-            formattedChartData.map((lineData) =>
-              lineData.map((point, index) => (
-                <g
-                  key={index}
-                  onMouseEnter={() => handleLineHover(point.key)}
-                  onMouseLeave={handleLineLeave}
-                >
-                  {/* ... (chart elements like path and circle) */}
-                  {hoveredLine === point.key && (
-                    <g>
-                      <rect
-                        x={50 + index * 70 - 40} // Adjust positioning
-                        y={350 - point.lag / 3 - 25}
-                        width="80"
-                        height="50"
-                        fill="white"
-                        stroke="gray"
-                        rx="5"
-                      />
-                      <text
-                        x={50 + index * 70}
-                        y={350 - point.lag / 3 - 10}
-                        textAnchor="middle"
-                        fill="black"
-                        fontSize="12"
-                      >
-                        {point.key}: {point.lag}
-                      </text>
-                      <text
-                        x={50 + index * 70}
-                        y={350 - point.lag / 3 + 10} // Adjust positioning
-                        textAnchor="middle"
-                        fill="blue"
-                        fontSize="12"
-                        className="cursor-pointer"
-                        onClick={() => handleLineClick(point.key)}
-                      >
-                        View Details
-                      </text>
-                    </g>
-                  )}
-                </g>
-              ))
+                  View Details
+                </div>
+              </div>
             )}
-
-          {/* Threshold Line */}
-          <ThresholdLine
-            chartWidth={750}
-            chartHeight={300}
-            maxValue={1000}
-            onThresholdChange={handleThresholdChange}
-            xOffset={50}
-            yOffset={50}
-            bottomOffset={350}
-          />
-          {/* X-axis labels */}
-          {chartData.map((point, index) => (
-            <text key={index} x={50 + index * 70} y="370" textAnchor="middle">
-              {point.time}
-            </text>
-          ))}
-
-          {/* Y-axis labels */}
-          {[0, 250, 500, 750, 1000].map((value, index) => (
-            <text
-              key={index}
-              x="40"
-              y={350 - value / 3}
-              textAnchor="end"
-              alignmentBaseline="middle"
-            >
-              {value}
-            </text>
-          ))}
+          </g>
         </svg>
       </div>
 
