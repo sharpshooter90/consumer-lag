@@ -39,8 +39,8 @@ const ChartDetailsModal = ({
     : "Unknown time range";
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent>
+    <Drawer open={isOpen} onOpenChange={onClose} snapPoints={[0.5, 1]}>
+      <DrawerContent className="h-[50%] overflow-auto">
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
             <DrawerTitle>Chart Details</DrawerTitle>
