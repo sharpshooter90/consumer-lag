@@ -1,4 +1,23 @@
 import React, { useState, useMemo } from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 const KafkaDataTable = ({ chartData }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -17,12 +36,13 @@ const KafkaDataTable = ({ chartData }) => {
             topic,
             partition,
             lag: value,
-            lagPercentage: ((value / 3) * 100).toFixed(2) + "%", // Changed from 1000 to 3
-            status: value > 2.25 ? "High" : value > 1.5 ? "Medium" : "Low", // Adjusted thresholds
+            lagPercentage: ((value / 3) * 100).toFixed(2) + "%",
+            status: value > 2.25 ? "High" : value > 1.5 ? "Medium" : "Low",
           };
         }),
     );
   }, [chartData]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -35,10 +55,10 @@ const KafkaDataTable = ({ chartData }) => {
     setSortOrder(sortOrder === "asc" ? "desc" : "asc");
   };
 
-  const handleFilterChange = (field, value) => {
+  const handleFilterChange = (value) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
-      [field]: value,
+      status: value,
     }));
   };
 
@@ -61,8 +81,8 @@ const KafkaDataTable = ({ chartData }) => {
 
     if (sortBy) {
       data = data.sort((a, b) => {
-        const valueA = sortBy === "lag" ? parseInt(a[sortBy], 10) : a[sortBy];
-        const valueB = sortBy === "lag" ? parseInt(b[sortBy], 10) : b[sortBy];
+        const valueA = sortBy === "lag" ? parseFloat(a[sortBy]) : a[sortBy];
+        const valueB = sortBy === "lag" ? parseFloat(b[sortBy]) : b[sortBy];
 
         if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
         if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
@@ -80,112 +100,109 @@ const KafkaDataTable = ({ chartData }) => {
   );
 
   return (
-    <div className="mt-8">
-      <h3 className="text-xl font-bold mb-4">Consumer Lag Data Table</h3>
-      <div className="flex gap-4 items-center">
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="mb-4 px-3 py-2 border rounded-md"
-        />
-
-        {/* Filters */}
-        <div className="mb-4">
-          <label htmlFor="statusFilter" className="mr-2">
-            Status:
-          </label>
-          <select
-            id="statusFilter"
+    <Card className="mt-8">
+      <CardHeader>
+        <CardTitle>Consumer Lag Data Table</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex gap-4 items-center mb-4">
+          <Input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="max-w-sm"
+          />
+          <Select
             value={filters.status || ""}
-            onChange={(e) => handleFilterChange("status", e.target.value)}
+            onValueChange={handleFilterChange}
           >
-            <option value="">All</option>
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All</SelectItem>
+              <SelectItem value="High">High</SelectItem>
+              <SelectItem value="Medium">Medium</SelectItem>
+              <SelectItem value="Low">Low</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </div>
-      {/* Pagination Controls */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          Showing page {currentPage} of {pageCount}
-        </div>
-        <div>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-2 py-1 bg-blue-500 text-white rounded mr-2 disabled:bg-gray-300"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, pageCount))
-            }
-            disabled={currentPage === pageCount}
-            className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-300"
-          >
-            Next
-          </button>
-        </div>
-      </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <div style={{ height: "300px", overflowY: "auto" }}>
-          <table className="min-w-full bg-white">
-            <thead className="bg-gray-800 text-white">
-              <tr>
-                <th className="sticky top-0 px-4 py-2">Time</th>
-                <th className="sticky top-0 px-4 py-2">Group</th>
-                <th className="sticky top-0 px-4 py-2">Topic</th>
-                <th className="sticky top-0 px-4 py-2">Partition</th>
-                <th
-                  className="sticky top-0 px-4 py-2 cursor-pointer"
-                  onClick={() => handleSortClick("lag")}
-                >
-                  Lag {sortBy === "lag" && (sortOrder === "asc" ? "▲" : "▼")}
-                </th>
-                <th className="sticky top-0 px-4 py-2">Lag %</th>
-                <th className="sticky top-0 px-4 py-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedData.map((item, index) => (
-                <tr
-                  key={index}
-                  className={index % 2 === 0 ? "bg-gray-100" : "bg-white"}
-                >
-                  <td className="border px-4 py-2">{item.time}</td>
-                  <td className="border px-4 py-2">{item.group}</td>
-                  <td className="border px-4 py-2">{item.topic}</td>
-                  <td className="border px-4 py-2">{item.partition}</td>
-                  <td className="border px-4 py-2">{item.lag}</td>
-                  <td className="border px-4 py-2">{item.lagPercentage}</td>
-                  <td className="border px-4 py-2">
-                    <span
-                      className={`px-2 py-1 rounded ${
-                        item.status === "High"
-                          ? "bg-red-500 text-white"
-                          : item.status === "Medium"
-                            ? "bg-yellow-500 text-black"
-                            : "bg-green-500 text-white"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <Table>
+          <TableCaption>
+            Consumer lag data for Kafka topics and partitions.
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Time</TableHead>
+              <TableHead>Group</TableHead>
+              <TableHead>Topic</TableHead>
+              <TableHead>Partition</TableHead>
+              <TableHead
+                className="cursor-pointer"
+                onClick={() => handleSortClick("lag")}
+              >
+                Lag {sortBy === "lag" && (sortOrder === "asc" ? "▲" : "▼")}
+              </TableHead>
+              <TableHead>Lag %</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.map((item, index) => (
+              <TableRow key={index}>
+                <TableCell>{item.time}</TableCell>
+                <TableCell>{item.group}</TableCell>
+                <TableCell>{item.topic}</TableCell>
+                <TableCell>{item.partition}</TableCell>
+                <TableCell>{item.lag}</TableCell>
+                <TableCell>{item.lagPercentage}</TableCell>
+                <TableCell>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.status === "High"
+                        ? "bg-red-100 text-red-800"
+                        : item.status === "Medium"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <div className="flex items-center justify-between space-x-2 py-4">
+          <div className="text-sm text-muted-foreground">
+            Showing page {currentPage} of {pageCount}
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, pageCount))
+              }
+              disabled={currentPage === pageCount}
+            >
+              Next
+            </Button>
+          </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

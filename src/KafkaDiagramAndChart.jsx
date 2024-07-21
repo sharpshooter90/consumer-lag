@@ -12,7 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FullScreenWrapper from "./FullScreenWrapper";
 import ThresholdLine from "./ThresholdLine";
@@ -156,7 +162,7 @@ const KafkaDiagramAndChart = () => {
         <div>
           <h3 className="font-bold">Consumer Groups</h3>
           {consumerGroups.map((group) => (
-            <div key={group} className="flex items-center space-x-2">
+            <div key={group} className="flex items-center space-x-2 gap-2 mb-2">
               <Checkbox
                 id={`group-${group}`}
                 checked={selectedGroups.includes(group)}
@@ -170,14 +176,19 @@ const KafkaDiagramAndChart = () => {
                   }
                 }}
               />
-              <label htmlFor={`group-${group}`}>{group}</label>
+              <label
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                htmlFor={`group-${group}`}
+              >
+                {group}
+              </label>
             </div>
           ))}
         </div>
         <div>
           <h3 className="font-bold">Topics</h3>
           {topics.map((topic) => (
-            <div key={topic} className="flex items-center space-x-2">
+            <div key={topic} className="flex items-center gap-2 mb-2 space-x-2">
               <Checkbox
                 id={`topic-${topic}`}
                 checked={selectedTopics.includes(topic)}
@@ -191,14 +202,22 @@ const KafkaDiagramAndChart = () => {
                   }
                 }}
               />
-              <label htmlFor={`topic-${topic}`}>{topic}</label>
+              <label
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                htmlFor={`topic-${topic}`}
+              >
+                {topic}
+              </label>
             </div>
           ))}
         </div>
         <div>
           <h3 className="font-bold">Partitions</h3>
           {partitions.map((partition) => (
-            <div key={partition} className="flex items-center space-x-2">
+            <div
+              key={partition}
+              className="flex items-center space-x-2 gap-2 mb-2"
+            >
               <Checkbox
                 id={`partition-${partition}`}
                 checked={selectedPartitions.includes(partition)}
@@ -212,119 +231,66 @@ const KafkaDiagramAndChart = () => {
                   }
                 }}
               />
-              <label htmlFor={`partition-${partition}`}>{partition}</label>
+              <label
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                htmlFor={`partition-${partition}`}
+              >
+                {partition}
+              </label>
             </div>
           ))}
         </div>
       </CardContent>
-      <Button onClick={applyFilters}>Apply Filters</Button>
+      <CardFooter className="flex justify-between">
+        <Button onClick={applyFilters}>Apply Filters</Button>
+      </CardFooter>
     </Card>
   );
   const renderDiagram = () => (
     <div>
-      <div className="flex items-center mb-4">
-        <div className="flex items-center mb-4">
-          <span className="mr-2">
-            Show Consumer Groups Diagram (relationship)
-          </span>
+      <Card className="mb-4">
+        <CardHeader className="flex-row gap-4 items-center">
+          <CardTitle>Show Consumer Groups Diagram (relationship)</CardTitle>
           <Switch checked={showDiagram} onCheckedChange={setShowDiagram} />
-        </div>
-      </div>
-      {showDiagram && (
-        <svg width="800" height="500" viewBox="0 0 800 500">
-          {/* Consumer Groups */}
-          <g>
-            {consumerGroups.map((group, index) => (
-              <g key={group}>
-                <rect
-                  x="10"
-                  y={50 + index * 100}
-                  width="150"
-                  height="60"
-                  fill={groupColors[group]}
-                  stroke="black"
-                  strokeWidth="2"
-                  opacity={
-                    selectedGroups.length === 0 ||
-                    selectedGroups.includes(group)
-                      ? 1
-                      : 0.4
-                  }
-                />
-                <text
-                  x="85"
-                  y={85 + index * 100}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill="black"
-                  fontWeight="bold"
-                >
-                  {group}
-                </text>
-                {groupTopicRelations[group].map((topic, topicIndex) => (
-                  <path
-                    key={`${group}-${topic}`}
-                    d={`M 160 ${80 + index * 100} Q 280 ${
-                      80 + index * 100
-                    }, 300 ${65 + topics.indexOf(topic) * 100}`}
-                    fill="none"
-                    stroke={groupColors[group]}
-                    strokeWidth="2"
-                    opacity={
-                      isConnectionActive(
-                        group,
-                        topic,
-                        null,
-                        selectedGroups,
-                        selectedTopics,
-                        selectedPartitions,
-                        groupTopicRelations,
-                      )
-                        ? 1
-                        : 0.4
-                    }
-                  />
-                ))}
-              </g>
-            ))}
-          </g>
-
-          {/* Topics */}
-          <g>
-            {topics.map((topic, index) => (
-              <g key={topic}>
-                <rect
-                  x="300"
-                  y={50 + index * 100}
-                  width="150"
-                  height="60"
-                  fill="#fff0e6"
-                  stroke="#ff9933"
-                  strokeWidth="2"
-                  opacity={
-                    selectedTopics.length === 0 ||
-                    selectedTopics.includes(topic)
-                      ? 1
-                      : 0.4
-                  }
-                />
-                <text
-                  x="375"
-                  y={85 + index * 100}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                >
-                  {topic}
-                </text>
-                {consumerGroups.map(
-                  (group) =>
-                    groupTopicRelations[group].includes(topic) &&
-                    partitions.map((partition) => (
+        </CardHeader>
+        <CardContent className="flex space-x-4">
+          {showDiagram && (
+            <svg width="800" height="500" viewBox="0 0 800 500">
+              {/* Consumer Groups */}
+              <g>
+                {consumerGroups.map((group, index) => (
+                  <g key={group}>
+                    <rect
+                      x="10"
+                      y={50 + index * 100}
+                      width="150"
+                      height="60"
+                      fill={groupColors[group]}
+                      stroke="black"
+                      strokeWidth="2"
+                      opacity={
+                        selectedGroups.length === 0 ||
+                        selectedGroups.includes(group)
+                          ? 1
+                          : 0.4
+                      }
+                    />
+                    <text
+                      x="85"
+                      y={85 + index * 100}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="black"
+                      fontWeight="bold"
+                    >
+                      {group}
+                    </text>
+                    {groupTopicRelations[group].map((topic, topicIndex) => (
                       <path
-                        key={`${topic}-${group}-${partition}`}
-                        d={`M 450 ${80 + index * 100} Q 570 ${
+                        key={`${group}-${topic}`}
+                        d={`M 160 ${80 + index * 100} Q 280 ${
                           80 + index * 100
-                        }, 590 ${65 + partitions.indexOf(partition) * 80}`}
+                        }, 300 ${65 + topics.indexOf(topic) * 100}`}
                         fill="none"
                         stroke={groupColors[group]}
                         strokeWidth="2"
@@ -332,7 +298,7 @@ const KafkaDiagramAndChart = () => {
                           isConnectionActive(
                             group,
                             topic,
-                            partition,
+                            null,
                             selectedGroups,
                             selectedTopics,
                             selectedPartitions,
@@ -342,55 +308,115 @@ const KafkaDiagramAndChart = () => {
                             : 0.4
                         }
                       />
-                    )),
-                )}
+                    ))}
+                  </g>
+                ))}
               </g>
-            ))}
-          </g>
 
-          {/* Partitions */}
-          <g>
-            {partitions.map((partition, index) => (
-              <g key={partition}>
-                <rect
-                  x="590"
-                  y={50 + index * 80}
-                  width="150"
-                  height="50"
-                  fill="#e6ffe6"
-                  stroke="#33cc33"
-                  strokeWidth="2"
-                  opacity={
-                    selectedPartitions.length === 0 ||
-                    selectedPartitions.includes(partition)
-                      ? 1
-                      : 0.4
-                  }
-                />
-                <text
-                  x="665"
-                  y={75 + index * 80}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                >
-                  {partition}
-                </text>
+              {/* Topics */}
+              <g>
+                {topics.map((topic, index) => (
+                  <g key={topic}>
+                    <rect
+                      x="300"
+                      y={50 + index * 100}
+                      width="150"
+                      height="60"
+                      fill="#fff0e6"
+                      stroke="#ff9933"
+                      strokeWidth="2"
+                      opacity={
+                        selectedTopics.length === 0 ||
+                        selectedTopics.includes(topic)
+                          ? 1
+                          : 0.4
+                      }
+                    />
+                    <text
+                      x="375"
+                      y={85 + index * 100}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      {topic}
+                    </text>
+                    {consumerGroups.map(
+                      (group) =>
+                        groupTopicRelations[group].includes(topic) &&
+                        partitions.map((partition) => (
+                          <path
+                            key={`${topic}-${group}-${partition}`}
+                            d={`M 450 ${80 + index * 100} Q 570 ${
+                              80 + index * 100
+                            }, 590 ${65 + partitions.indexOf(partition) * 80}`}
+                            fill="none"
+                            stroke={groupColors[group]}
+                            strokeWidth="2"
+                            opacity={
+                              isConnectionActive(
+                                group,
+                                topic,
+                                partition,
+                                selectedGroups,
+                                selectedTopics,
+                                selectedPartitions,
+                                groupTopicRelations,
+                              )
+                                ? 1
+                                : 0.4
+                            }
+                          />
+                        )),
+                    )}
+                  </g>
+                ))}
               </g>
-            ))}
-          </g>
 
-          {/* Labels */}
-          <text x="85" y="30" textAnchor="middle" fontWeight="bold">
-            Consumer Groups
-          </text>
-          <text x="375" y="30" textAnchor="middle" fontWeight="bold">
-            Topics
-          </text>
-          <text x="665" y="30" textAnchor="middle" fontWeight="bold">
-            Partitions
-          </text>
-        </svg>
-      )}
+              {/* Partitions */}
+              <g>
+                {partitions.map((partition, index) => (
+                  <g key={partition}>
+                    <rect
+                      x="590"
+                      y={50 + index * 80}
+                      width="150"
+                      height="50"
+                      fill="#e6ffe6"
+                      stroke="#33cc33"
+                      strokeWidth="2"
+                      opacity={
+                        selectedPartitions.length === 0 ||
+                        selectedPartitions.includes(partition)
+                          ? 1
+                          : 0.4
+                      }
+                    />
+                    <text
+                      x="665"
+                      y={75 + index * 80}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      {partition}
+                    </text>
+                  </g>
+                ))}
+              </g>
+
+              {/* Labels */}
+              <text x="85" y="30" textAnchor="middle" fontWeight="bold">
+                Consumer Groups
+              </text>
+              <text x="375" y="30" textAnchor="middle" fontWeight="bold">
+                Topics
+              </text>
+              <text x="665" y="30" textAnchor="middle" fontWeight="bold">
+                Partitions
+              </text>
+            </svg>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
   const renderChart = () => (
@@ -657,7 +683,7 @@ const KafkaDiagramAndChart = () => {
   );
 
   return (
-    <div className="p-4 bg-white">
+    <div className="p-4 bg-white flex flex-col gap-4">
       <h2 className="text-2xl font-bold mb-4">
         Message Queue Monitoring / Kafka
       </h2>
