@@ -555,6 +555,8 @@ const FullScreenWrapper = ({ children }) => {
 };
 
 const KafkaDiagramAndChart = () => {
+  const [activeTab, setActiveTab] = useState("table");
+
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(800); // Default width
   const containerRef = useRef(null);
@@ -1176,8 +1178,40 @@ const KafkaDiagramAndChart = () => {
           </div>
         </div>
       </FullScreenWrapper>
-      {/* Legend */}
-      <KafkaDataTable chartData={chartData} />
+
+      {/* Horizontal Tab */}
+      <div className="mt-8">
+        <div className="flex border-b mb-4">
+          <button
+            className={`py-2 px-4 font-semibold ${
+              activeTab === "table"
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("table")}
+          >
+            Consumer Lag Data
+          </button>
+          <button
+            className={`py-2 px-4 font-semibold ${
+              activeTab === "placeholder"
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setActiveTab("placeholder")}
+          >
+            [Selected Chart Item details]
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "table" ? (
+          <KafkaDataTable chartData={chartData} />
+        ) : (
+          <SystemMetricsDashboard />
+        )}
+      </div>
+
       {/* Modal */}
       {isModalOpen && modalData && (
         <div className="fixed bottom-0 left-0 w-full h-96 bg-white border-t shadow-lg">

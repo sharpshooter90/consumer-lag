@@ -11,6 +11,9 @@ dependencies:
   date-fns:
     specifier: 3.6.0
     version: 3.6.0
+  lucide-react:
+    specifier: ^0.412.0
+    version: 0.412.0(react@18.2.0)
   react:
     specifier: ^18.0.0
     version: 18.2.0
@@ -1024,6 +1027,14 @@ packages:
     dependencies:
       yallist: 3.1.1
     dev: true
+
+  /lucide-react@0.412.0(react@18.2.0):
+    resolution: {integrity: sha512-m7argY/PhSfjhwP2Dxey+VzFBvusfd8ULt+vWWFnzQhURLOtNyD1qWmMVdtJ4Nn+d+DTcoOiILrjThSjY9kaow==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
 
   /ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
