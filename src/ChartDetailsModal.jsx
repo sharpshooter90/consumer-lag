@@ -1,12 +1,13 @@
+import React from "react";
+import { Card } from "@/components/ui/card";
+import { XIcon, FolderIcon, LayersIcon, ClockIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import SystemMetricsDashboard from "./SystemMetricsDashboard";
 
 const ChartDetailsModal = ({
@@ -15,47 +16,51 @@ const ChartDetailsModal = ({
   modalData,
   timeSeriesOptions,
 }) => {
-  if (!modalData) return null;
+  if (!isOpen || !modalData) return null;
+
+  const { group, topic, partition, timeSeriesOption } = modalData;
+
+  const selectedTimeOption = timeSeriesOptions.find(
+    (option) => option.value === timeSeriesOption
+  );
+  const timeRangeText = selectedTimeOption
+    ? selectedTimeOption.label
+    : "Unknown time range";
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Chart Details</DialogTitle>
-          <DialogDescription>
-            Detailed information about the selected chart item.
-          </DialogDescription>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="absolute right-4 top-4"
+          >
+            <XIcon className="h-4 w-4" />
+          </Button>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <span className="font-bold">Group:</span>
-            <span className="col-span-3">{modalData.group}</span>
+        <Card className="w-full p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <FolderIcon className="w-4 h-4" />
+              <span>{group}</span>
+            </div>
+            <h3 className="text-sm font-semibold">{topic}</h3>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <span className="font-bold">Topic:</span>
-            <span className="col-span-3">{modalData.topic}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <LayersIcon className="w-4 h-4" />
+              <span>Partition {partition}</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <ClockIcon className="w-4 h-4" />
+              <span>{timeRangeText}</span>
+            </div>
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <span className="font-bold">Partition:</span>
-            <span className="col-span-3">{modalData.partition}</span>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <span className="font-bold">Time Range:</span>
-            <span className="col-span-3">
-              {
-                timeSeriesOptions.find(
-                  (opt) => opt.value === modalData.timeSeriesOption,
-                )?.label
-              }
-            </span>
-          </div>
-        </div>
-        <div className="max-h-[300px] overflow-y-auto">
-          <SystemMetricsDashboard />
-        </div>
-        <DialogFooter>
-          <Button onClick={onClose}>Close</Button>
-        </DialogFooter>
+        </Card>
+        <SystemMetricsDashboard />
       </DialogContent>
     </Dialog>
   );

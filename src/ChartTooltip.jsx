@@ -16,7 +16,7 @@ const ChartTooltip = ({ data, position, visible }) => {
     pointerEvents: "none",
     zIndex: 1000,
     transform: "translate(-100%, -100%)", // Center horizontally and place above the cursor
-    marginTop: "50px", // Add a small gap above the cursor
+    marginTop: "-50px", // Add a small gap above the cursor
   };
 
   return (

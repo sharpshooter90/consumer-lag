@@ -109,7 +109,7 @@ const KafkaDiagramAndChart = () => {
       consumerGroups,
       topics,
       partitions,
-      groupTopicRelations,
+      groupTopicRelations
     );
     setChartData(newData);
   };
@@ -123,7 +123,7 @@ const KafkaDiagramAndChart = () => {
         const nearestPoint = findNearestDataPoint(
           mouseX,
           chartData,
-          svgRef.current,
+          svgRef.current
         );
         if (nearestPoint) {
           setTooltipData({
@@ -136,7 +136,7 @@ const KafkaDiagramAndChart = () => {
         }
       }
     },
-    [chartData],
+    [chartData]
   );
 
   const handleMouseMove = useCallback(
@@ -149,7 +149,7 @@ const KafkaDiagramAndChart = () => {
         const nearestPoint = findNearestDataPoint(
           mouseX,
           chartData,
-          svgRef.current,
+          svgRef.current
         );
         if (nearestPoint) {
           setTooltipData({
@@ -157,11 +157,15 @@ const KafkaDiagramAndChart = () => {
             time: nearestPoint.time,
             lag: nearestPoint[hoveredLine],
           });
-          setTooltipPosition({ x: event.clientX, y: event.clientY });
+          // Calculate position relative to the SVG
+          setTooltipPosition({
+            x: mouseX,
+            y: mouseY,
+          });
         }
       }
     },
-    [chartData, hoveredLine],
+    [chartData, hoveredLine]
   );
 
   const handleLineEnter = useCallback((key) => {
@@ -176,20 +180,15 @@ const KafkaDiagramAndChart = () => {
   const handleLineClick = useCallback(
     (key) => {
       const [group, topic, partition] = key.split("-");
-      const clickedData = chartData.map((point) => ({
-        time: point.time,
-        lag: point[key],
-      }));
       setModalData({
         group,
         topic,
         partition,
-        data: clickedData,
         timeSeriesOption,
       });
       setIsModalOpen(true);
     },
-    [chartData, timeSeriesOption],
+    [timeSeriesOption]
   );
 
   useEffect(() => {
@@ -228,7 +227,7 @@ const KafkaDiagramAndChart = () => {
                     setSelectedGroups([...selectedGroups, group]);
                   } else {
                     setSelectedGroups(
-                      selectedGroups.filter((g) => g !== group),
+                      selectedGroups.filter((g) => g !== group)
                     );
                   }
                 }}
@@ -254,7 +253,7 @@ const KafkaDiagramAndChart = () => {
                     setSelectedTopics([...selectedTopics, topic]);
                   } else {
                     setSelectedTopics(
-                      selectedTopics.filter((t) => t !== topic),
+                      selectedTopics.filter((t) => t !== topic)
                     );
                   }
                 }}
@@ -283,7 +282,7 @@ const KafkaDiagramAndChart = () => {
                     setSelectedPartitions([...selectedPartitions, partition]);
                   } else {
                     setSelectedPartitions(
-                      selectedPartitions.filter((p) => p !== partition),
+                      selectedPartitions.filter((p) => p !== partition)
                     );
                   }
                 }}
@@ -359,7 +358,7 @@ const KafkaDiagramAndChart = () => {
                             selectedGroups,
                             selectedTopics,
                             selectedPartitions,
-                            groupTopicRelations,
+                            groupTopicRelations
                           )
                             ? 1
                             : 0.4
@@ -417,13 +416,13 @@ const KafkaDiagramAndChart = () => {
                                 selectedGroups,
                                 selectedTopics,
                                 selectedPartitions,
-                                groupTopicRelations,
+                                groupTopicRelations
                               )
                                 ? 1
                                 : 0.4
                             }
                           />
-                        )),
+                        ))
                     )}
                   </g>
                 ))}
@@ -572,8 +571,8 @@ const KafkaDiagramAndChart = () => {
                           .map(
                             (point, i) =>
                               `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(
-                                point[key],
-                              )}`,
+                                point[key]
+                              )}`
                           )
                           .join(" ")}
                         fill="none"
