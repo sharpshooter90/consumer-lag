@@ -1,5 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Fullscreen, Share, Info, MoreVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FullScreenWrapper from "./FullScreenWrapper";
 import ThresholdLine from "./ThresholdLine";
 import KafkaDataTable from "./KafkaDataTable";
@@ -134,80 +148,87 @@ const KafkaDiagramAndChart = () => {
 
   // jsx blocks
   const renderFilters = () => (
-    <div className="mb-4">
-      <div className="flex gap-6">
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle>Filters</CardTitle>
+      </CardHeader>
+      <CardContent className="flex space-x-4">
         <div>
           <h3 className="font-bold">Consumer Groups</h3>
           {consumerGroups.map((group) => (
-            <label key={group} className="block">
-              <input
-                type="checkbox"
+            <div key={group} className="flex items-center space-x-2">
+              <Checkbox
+                id={`group-${group}`}
                 checked={selectedGroups.includes(group)}
-                onChange={() =>
-                  toggleSelection(group, selectedGroups, setSelectedGroups)
-                }
-              />{" "}
-              {group}
-            </label>
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setSelectedGroups([...selectedGroups, group]);
+                  } else {
+                    setSelectedGroups(
+                      selectedGroups.filter((g) => g !== group),
+                    );
+                  }
+                }}
+              />
+              <label htmlFor={`group-${group}`}>{group}</label>
+            </div>
           ))}
         </div>
         <div>
           <h3 className="font-bold">Topics</h3>
           {topics.map((topic) => (
-            <label key={topic} className="block">
-              <input
-                type="checkbox"
+            <div key={topic} className="flex items-center space-x-2">
+              <Checkbox
+                id={`topic-${topic}`}
                 checked={selectedTopics.includes(topic)}
-                onChange={() =>
-                  toggleSelection(topic, selectedTopics, setSelectedTopics)
-                }
-              />{" "}
-              {topic}
-            </label>
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setSelectedTopics([...selectedTopics, topic]);
+                  } else {
+                    setSelectedTopics(
+                      selectedTopics.filter((t) => t !== topic),
+                    );
+                  }
+                }}
+              />
+              <label htmlFor={`topic-${topic}`}>{topic}</label>
+            </div>
           ))}
         </div>
         <div>
           <h3 className="font-bold">Partitions</h3>
           {partitions.map((partition) => (
-            <label key={partition} className="block">
-              <input
-                type="checkbox"
+            <div key={partition} className="flex items-center space-x-2">
+              <Checkbox
+                id={`partition-${partition}`}
                 checked={selectedPartitions.includes(partition)}
-                onChange={() =>
-                  toggleSelection(
-                    partition,
-                    selectedPartitions,
-                    setSelectedPartitions,
-                  )
-                }
-              />{" "}
-              {partition}
-            </label>
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setSelectedPartitions([...selectedPartitions, partition]);
+                  } else {
+                    setSelectedPartitions(
+                      selectedPartitions.filter((p) => p !== partition),
+                    );
+                  }
+                }}
+              />
+              <label htmlFor={`partition-${partition}`}>{partition}</label>
+            </div>
           ))}
         </div>
-      </div>
-      <button
-        onClick={applyFilters}
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Apply Filters
-      </button>
-    </div>
+      </CardContent>
+      <Button onClick={applyFilters}>Apply Filters</Button>
+    </Card>
   );
   const renderDiagram = () => (
     <div>
       <div className="flex items-center mb-4">
-        <span className="mr-2">
-          Show Consumer Groups Diagram (relationship)
-        </span>
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={showDiagram}
-            onChange={() => setShowDiagram(!showDiagram)}
-          />
-          <span className="slider round"></span>
-        </label>
+        <div className="flex items-center mb-4">
+          <span className="mr-2">
+            Show Consumer Groups Diagram (relationship)
+          </span>
+          <Switch checked={showDiagram} onCheckedChange={setShowDiagram} />
+        </div>
       </div>
       {showDiagram && (
         <svg width="800" height="500" viewBox="0 0 800 500">
@@ -374,241 +395,228 @@ const KafkaDiagramAndChart = () => {
   );
   const renderChart = () => (
     <FullScreenWrapper>
-      <div className="mt-8">
-        <h3 className="text-xl font-bold mb-4">Consumer Lag Chart</h3>
-        <div className="mb-4">
-          <label htmlFor="timeSeriesSelect" className="mr-2">
-            Time Range:
-          </label>
-          <select
-            id="timeSeriesSelect"
-            value={timeSeriesOption}
-            onChange={(e) => setTimeSeriesOption(e.target.value)}
-            className="border rounded p-1"
-          >
-            {timeSeriesOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex justify-end mb-2 space-x-2">
-          <button
-            aria-label="full screen"
-            className="p-2 hover:bg-gray-200 rounded"
-            onClick={handleFullScreenClick}
-          >
-            <Fullscreen className="w-5 h-5" />
-          </button>
-          <button aria-label="share" className="p-2 hover:bg-gray-200 rounded">
-            <Share className="w-5 h-5" />
-          </button>
-          <button aria-label="info" className="p-2 hover:bg-gray-200 rounded">
-            <Info className="w-5 h-5" />
-          </button>
-          <button aria-label="more" className="p-2 hover:bg-gray-200 rounded">
-            <MoreVertical className="w-5 h-5" />
-          </button>
-        </div>
-        <div ref={containerRef} className="w-full h-[400px]">
-          <svg
-            ref={svgRef}
-            width="100%"
-            height="100%"
-            viewBox={`0 0 ${containerWidth} ${chartHeight}`}
-            preserveAspectRatio="xMidYMid meet"
-          >
-            <g>
-              {/* X and Y axes */}
-              <line
-                x1={PADDING.left}
-                y1={chartHeight - PADDING.bottom}
-                x2={containerWidth - PADDING.right}
-                y2={chartHeight - PADDING.bottom}
-                stroke="black"
-                strokeWidth="2"
-              />
-              <line
-                x1={PADDING.left}
-                y1={chartHeight - PADDING.bottom}
-                x2={PADDING.left}
-                y2={PADDING.top}
-                stroke="black"
-                strokeWidth="2"
-              />
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Consumer Lag Chart</CardTitle>
+          <div className="flex items-center space-x-2">
+            <Select
+              value={timeSeriesOption}
+              onValueChange={setTimeSeriesOption}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select time range" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeSeriesOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleFullScreenClick}
+            >
+              <Fullscreen className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon">
+              <Share className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon">
+              <Info className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
 
-              {/* Horizontal gridlines */}
-              {[0, 250, 500, 750, 1000].map((value, index) => (
+        <CardContent>
+          <div ref={containerRef} className="w-full h-[400px]">
+            <svg
+              ref={svgRef}
+              width="100%"
+              // height="100%"
+              viewBox={`0 0 ${containerWidth} ${chartHeight}`}
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <g>
+                {/* X and Y axes */}
                 <line
-                  key={index}
                   x1={PADDING.left}
-                  y1={yScale(value)}
+                  y1={chartHeight - PADDING.bottom}
                   x2={containerWidth - PADDING.right}
-                  y2={yScale(value)}
-                  stroke="lightgray"
-                  strokeDasharray="4"
+                  y2={chartHeight - PADDING.bottom}
+                  stroke="black"
+                  strokeWidth="2"
                 />
-              ))}
+                <line
+                  x1={PADDING.left}
+                  y1={chartHeight - PADDING.bottom}
+                  x2={PADDING.left}
+                  y2={PADDING.top}
+                  stroke="black"
+                  strokeWidth="2"
+                />
 
-              {/* Chart lines */}
-              {chartData.length > 0 &&
-                Object.keys(chartData[0])
-                  .filter((key) => key !== "time")
-                  .map((key) => (
-                    <path
-                      key={key}
-                      d={chartData
-                        .map(
-                          (point, i) =>
-                            `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(
-                              point[key],
-                            )}`,
-                        )
-                        .join(" ")}
-                      fill="none"
-                      stroke={groupColors[key.split("-")[0]]}
-                      strokeWidth="2"
-                      opacity={
-                        hoveredLine ? (hoveredLine === key ? 1 : 0.1) : 1
-                      }
-                      cursor="pointer"
-                      onClick={() => handleLineClick(key)}
-                      onMouseEnter={(e) => {
-                        if (svgRef.current) {
-                          const point = findNearestDataPoint(
-                            e.clientX,
-                            chartData,
-                            svgRef.current,
-                          );
-                          if (point) {
-                            handleLineHover(
-                              key,
-                              point.time,
-                              point[key],
-                              e.clientX,
-                              e.clientY,
-                            );
-                          }
+                {/* Horizontal gridlines */}
+                {[0, 250, 500, 750, 1000].map((value, index) => (
+                  <line
+                    key={index}
+                    x1={PADDING.left}
+                    y1={yScale(value)}
+                    x2={containerWidth - PADDING.right}
+                    y2={yScale(value)}
+                    stroke="lightgray"
+                    strokeDasharray="4"
+                  />
+                ))}
+
+                {/* Chart lines */}
+                {chartData.length > 0 &&
+                  Object.keys(chartData[0])
+                    .filter((key) => key !== "time")
+                    .map((key) => (
+                      <path
+                        key={key}
+                        d={chartData
+                          .map(
+                            (point, i) =>
+                              `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(
+                                point[key],
+                              )}`,
+                          )
+                          .join(" ")}
+                        fill="none"
+                        stroke={groupColors[key.split("-")[0]]}
+                        strokeWidth="2"
+                        opacity={
+                          hoveredLine ? (hoveredLine === key ? 1 : 0.1) : 1
                         }
-                      }}
-                      onMouseLeave={handleLineLeave}
-                      style={{ transition: "opacity 0.2s ease-in-out" }}
-                    />
-                  ))}
+                        cursor="pointer"
+                        onClick={() => handleLineClick(key)}
+                        onMouseEnter={(e) => {
+                          if (svgRef.current) {
+                            const point = findNearestDataPoint(
+                              e.clientX,
+                              chartData,
+                              svgRef.current,
+                            );
+                            if (point) {
+                              handleLineHover(
+                                key,
+                                point.time,
+                                point[key],
+                                e.clientX,
+                                e.clientY,
+                              );
+                            }
+                          }
+                        }}
+                        onMouseLeave={handleLineLeave}
+                        style={{ transition: "opacity 0.2s ease-in-out" }}
+                      />
+                    ))}
 
-              {/* X-axis labels */}
-              {chartData.map((point, index) => (
-                <text
-                  key={index}
-                  x={xScale(index)}
-                  y={chartHeight - PADDING.bottom + 20}
-                  textAnchor="middle"
-                  fontSize="10"
-                  transform={`rotate(-45 ${xScale(index)},${
-                    chartHeight - PADDING.bottom + 20
-                  })`}
-                >
-                  {point.time}
-                </text>
-              ))}
-
-              {[0, 0.75, 1.5, 2.25, 3].map((value) => (
-                <text
-                  key={value}
-                  x={PADDING.left - 10}
-                  y={yScale(value)}
-                  textAnchor="end"
-                  alignmentBaseline="middle"
-                  fontSize="10"
-                >
-                  {value}
-                </text>
-              ))}
-              {/* Y-axis label */}
-              <text
-                x={-chartHeight / 2}
-                y={PADDING.left / 3}
-                transform={`rotate(-90)`}
-                textAnchor="middle"
-                fontSize="12"
-                fontWeight="bold"
-              >
-                Delay in Seconds
-              </text>
-
-              {/* Threshold Line */}
-              <ThresholdLine
-                containerWidth={containerWidth}
-                chartHeight={chartHeight}
-                maxValue={1000}
-                onThresholdChange={handleThresholdChange}
-                xScale={xScale}
-                yScale={yScale}
-                padding={PADDING}
-              />
-
-              {/* Tooltip */}
-              {tooltipData && (
-                <foreignObject
-                  x={tooltipData.x}
-                  y={tooltipData.y - 40}
-                  width="150"
-                  height="60"
-                >
-                  <div
-                    xmlns="http://www.w3.org/1999/xhtml"
-                    className="bg-white border p-2 rounded shadow-md"
+                {/* X-axis labels */}
+                {chartData.map((point, index) => (
+                  <text
+                    key={index}
+                    x={xScale(index)}
+                    y={chartHeight - PADDING.bottom + 20}
+                    textAnchor="middle"
+                    fontSize="10"
+                    transform={`rotate(-45 ${xScale(index)},${
+                      chartHeight - PADDING.bottom + 20
+                    })`}
                   >
-                    <div>
-                      {tooltipData.key}: {tooltipData.lag}
-                    </div>
+                    {point.time}
+                  </text>
+                ))}
+
+                {[0, 0.75, 1.5, 2.25, 3].map((value) => (
+                  <text
+                    key={value}
+                    x={PADDING.left - 10}
+                    y={yScale(value)}
+                    textAnchor="end"
+                    alignmentBaseline="middle"
+                    fontSize="10"
+                  >
+                    {value}
+                  </text>
+                ))}
+                {/* Y-axis label */}
+                <text
+                  x={-chartHeight / 2}
+                  y={PADDING.left / 3}
+                  transform={`rotate(-90)`}
+                  textAnchor="middle"
+                  fontSize="12"
+                  fontWeight="bold"
+                >
+                  Delay in Seconds
+                </text>
+
+                {/* Threshold Line */}
+                <ThresholdLine
+                  containerWidth={containerWidth}
+                  chartHeight={chartHeight}
+                  maxValue={1000}
+                  onThresholdChange={handleThresholdChange}
+                  xScale={xScale}
+                  yScale={yScale}
+                  padding={PADDING}
+                />
+
+                {/* Tooltip */}
+                {tooltipData && (
+                  <foreignObject
+                    x={tooltipData.x}
+                    y={tooltipData.y - 40}
+                    width="150"
+                    height="60"
+                  >
                     <div
-                      className="text-blue-500 underline cursor-pointer"
-                      onClick={() => handleLineClick(tooltipData.key)}
+                      xmlns="http://www.w3.org/1999/xhtml"
+                      className="bg-white border p-2 rounded shadow-md"
                     >
-                      View Details
+                      <div>
+                        {tooltipData.key}: {tooltipData.lag}
+                      </div>
+                      <div
+                        className="text-blue-500 underline cursor-pointer"
+                        onClick={() => handleLineClick(tooltipData.key)}
+                      >
+                        View Details
+                      </div>
                     </div>
-                  </div>
-                </foreignObject>
-              )}
-            </g>
-          </svg>
-        </div>
-      </div>
+                  </foreignObject>
+                )}
+              </g>
+            </svg>
+          </div>
+        </CardContent>
+      </Card>
     </FullScreenWrapper>
   );
   const renderTabs = () => (
-    <div className="mt-8">
-      <div className="flex border-b mb-4">
-        <button
-          className={`py-2 px-4 font-semibold ${
-            activeTab === "table"
-              ? "border-b-2 border-blue-500 text-blue-500"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setActiveTab("table")}
-        >
-          Consumer Lag Data
-        </button>
-        <button
-          className={`py-2 px-4 font-semibold ${
-            activeTab === "placeholder"
-              ? "border-b-2 border-blue-500 text-blue-500"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
-          onClick={() => setActiveTab("placeholder")}
-        >
-          [Selected Chart Item details]
-        </button>
-      </div>
-      {/* Tab Content */}
-      {activeTab === "table" ? (
+    <Tabs defaultValue="table" className="mt-8">
+      <TabsList>
+        <TabsTrigger value="table">Consumer Lag Data</TabsTrigger>
+        <TabsTrigger value="placeholder">
+          Selected Chart Item Details
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="table">
         <KafkaDataTable chartData={chartData} />
-      ) : (
+      </TabsContent>
+      <TabsContent value="placeholder">
         <SystemMetricsDashboard />
-      )}
-    </div>
+      </TabsContent>
+    </Tabs>
   );
   const renderModal = () => (
     <div>

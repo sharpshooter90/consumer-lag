@@ -11,6 +11,8 @@ import {
 } from "recharts";
 import FullScreenWrapper from "./FullScreenWrapper";
 import { Fullscreen, Share, Info, MoreVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 const data = [
   {
     time: "10:30 AM",
@@ -96,159 +98,97 @@ const data = [
 ];
 
 const ChartCard = ({ title, children }) => (
-  <div className="w-full mb-4">
-    <div>{title}</div>
-    <div className="h-64">
-      <ResponsiveContainer width="100%" height="100%">
-        {children}
-      </ResponsiveContainer>
-    </div>
-  </div>
+  <Card className="w-full mb-4">
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+      <div className="flex justify-end space-x-2">
+        <Button variant="outline" size="icon">
+          <Fullscreen className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon">
+          <Share className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon">
+          <Info className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="icon">
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="h-64 w-full max-w-md mx-auto">{children}</div>
+    </CardContent>
+  </Card>
 );
-
+const ChartComponent = ({ data, lines }) => (
+  <ResponsiveContainer width="100%" height={250}>
+    <LineChart data={data}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="time" />
+      <YAxis />
+      <Tooltip />
+      <Legend />
+      {lines.map((line, index) => (
+        <Line
+          key={index}
+          type="monotone"
+          dataKey={line.dataKey}
+          name={line.name}
+          stroke={line.color}
+        />
+      ))}
+    </LineChart>
+  </ResponsiveContainer>
+);
 const SystemMetricsDashboard = () => {
   return (
     <FullScreenWrapper>
-      <div className="p-4 space-y-4">
-        <div className="flex mb-16">
-          <ChartCard title="Average CPU Load">
-            <div className="flex justify-end mb-2 space-x-2">
-              <button
-                aria-label="full screen"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <Fullscreen className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="share"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <Share className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="info"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <Info className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="more"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <MoreVertical className="w-5 h-5" />
-              </button>
-            </div>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="cpuLoad1m"
-                name="1m-average"
-                stroke="#8884d8"
+      <div className="p-4 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="flex gap-4">
+            <ChartCard title="Average CPU Load">
+              <ChartComponent
+                data={data}
+                lines={[
+                  {
+                    dataKey: "cpuLoad1m",
+                    name: "1m-average",
+                    color: "#8884d8",
+                  },
+                  {
+                    dataKey: "cpuLoad15m",
+                    name: "15m-average",
+                    color: "#82ca9d",
+                  },
+                ]}
               />
-              <Line
-                type="monotone"
-                dataKey="cpuLoad15m"
-                name="15m-average"
-                stroke="#82ca9d"
-              />
-            </LineChart>
-          </ChartCard>
+            </ChartCard>
 
-          <ChartCard title="Memory Usage (GiB)">
-            <div className="flex justify-end mb-2 space-x-2">
-              <button
-                aria-label="full screen"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <Fullscreen className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="share"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <Share className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="info"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <Info className="w-5 h-5" />
-              </button>
-              <button
-                aria-label="more"
-                className="p-2 hover:bg-gray-200 rounded"
-              >
-                <MoreVertical className="w-5 h-5" />
-              </button>
-            </div>
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="memBuffered"
-                name="buffered"
-                stroke="#8884d8"
+            <ChartCard title="Memory Usage (GiB)">
+              <ChartComponent
+                data={data}
+                lines={[
+                  {
+                    dataKey: "memBuffered",
+                    name: "buffered",
+                    color: "#8884d8",
+                  },
+                  { dataKey: "memCached", name: "cached", color: "#82ca9d" },
+                ]}
               />
-              <Line
-                type="monotone"
-                dataKey="memCached"
-                name="cached"
-                stroke="#82ca9d"
-              />
-            </LineChart>
+            </ChartCard>
+          </div>
+          <ChartCard title="Total Disk I/O (KiB/s)">
+            <ChartComponent
+              data={data}
+              lines={[
+                { dataKey: "diskWrite", name: "write", color: "#8884d8" },
+                { dataKey: "diskRead", name: "read", color: "#82ca9d" },
+              ]}
+            />
           </ChartCard>
         </div>
-
-        <ChartCard title="Total Disk I/O (KiB/s)">
-          <div className="flex justify-end mb-2 space-x-2">
-            <button
-              aria-label="full screen"
-              className="p-2 hover:bg-gray-200 rounded"
-            >
-              <Fullscreen className="w-5 h-5" />
-            </button>
-            <button
-              aria-label="share"
-              className="p-2 hover:bg-gray-200 rounded"
-            >
-              <Share className="w-5 h-5" />
-            </button>
-            <button aria-label="info" className="p-2 hover:bg-gray-200 rounded">
-              <Info className="w-5 h-5" />
-            </button>
-            <button aria-label="more" className="p-2 hover:bg-gray-200 rounded">
-              <MoreVertical className="w-5 h-5" />
-            </button>
-          </div>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="diskWrite"
-              name="write"
-              stroke="#8884d8"
-            />
-            <Line
-              type="monotone"
-              dataKey="diskRead"
-              name="read"
-              stroke="#82ca9d"
-            />
-          </LineChart>
-        </ChartCard>
       </div>
     </FullScreenWrapper>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Fullscreen } from "lucide-react";
+import { Fullscreen, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 const FullScreenWrapper = ({ children }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -16,28 +18,26 @@ const FullScreenWrapper = ({ children }) => {
     <div className="relative">
       {!isFullScreen && (
         <div className="absolute top-2 right-2 z-10">
-          <button
-            aria-label="full screen"
-            className="p-2 hover:bg-gray-200 rounded"
+          <Button
+            variant="outline"
+            size="icon"
             onClick={handleFullScreenClick}
+            aria-label="full screen"
           >
-            <Fullscreen className="w-5 h-5" />
-          </button>
+            <Fullscreen className="h-4 w-4" />
+          </Button>
         </div>
       )}
 
       {isFullScreen ? (
-        <div className="fixed inset-0 bg-white z-50 flex flex-col">
+        <Card className="fixed inset-0 z-50 flex flex-col dark:bg-gray-800">
           <div className="flex justify-end p-4">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
-            >
-              Close
-            </button>
+            <Button variant="ghost" size="icon" onClick={handleClose}>
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-          <div className="flex-grow m-[50px]">{children}</div>
-        </div>
+          <CardContent className="flex-grow m-[50px]">{children}</CardContent>
+        </Card>
       ) : (
         children
       )}
