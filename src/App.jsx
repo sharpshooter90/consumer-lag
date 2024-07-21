@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
+import { Fullscreen, Share, Info, MoreVertical } from "lucide-react";
 import {
   LineChart,
   Line,
@@ -107,73 +114,149 @@ const ChartCard = ({ title, children }) => (
 
 const SystemMetricsDashboard = () => {
   return (
-    <div className="p-4 space-y-4">
-      <ChartCard title="Average CPU Load">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="time" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="cpuLoad1m"
-            name="1m-average"
-            stroke="#8884d8"
-          />
-          <Line
-            type="monotone"
-            dataKey="cpuLoad15m"
-            name="15m-average"
-            stroke="#82ca9d"
-          />
-        </LineChart>
-      </ChartCard>
+    <FullScreenWrapper>
+      <div className="p-4 space-y-4">
+        <div className="flex mb-16">
+          <ChartCard title="Average CPU Load">
+            <div className="flex justify-end mb-2 space-x-2">
+              <button
+                aria-label="full screen"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <Fullscreen className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="share"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <Share className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="info"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <Info className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="more"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <MoreVertical className="w-5 h-5" />
+              </button>
+            </div>
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="cpuLoad1m"
+                name="1m-average"
+                stroke="#8884d8"
+              />
+              <Line
+                type="monotone"
+                dataKey="cpuLoad15m"
+                name="15m-average"
+                stroke="#82ca9d"
+              />
+            </LineChart>
+          </ChartCard>
 
-      <ChartCard title="Memory Usage (GiB)">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="time" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="memBuffered"
-            name="buffered"
-            stroke="#8884d8"
-          />
-          <Line
-            type="monotone"
-            dataKey="memCached"
-            name="cached"
-            stroke="#82ca9d"
-          />
-        </LineChart>
-      </ChartCard>
+          <ChartCard title="Memory Usage (GiB)">
+            <div className="flex justify-end mb-2 space-x-2">
+              <button
+                aria-label="full screen"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <Fullscreen className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="share"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <Share className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="info"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <Info className="w-5 h-5" />
+              </button>
+              <button
+                aria-label="more"
+                className="p-2 hover:bg-gray-200 rounded"
+              >
+                <MoreVertical className="w-5 h-5" />
+              </button>
+            </div>
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="time" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="memBuffered"
+                name="buffered"
+                stroke="#8884d8"
+              />
+              <Line
+                type="monotone"
+                dataKey="memCached"
+                name="cached"
+                stroke="#82ca9d"
+              />
+            </LineChart>
+          </ChartCard>
+        </div>
 
-      <ChartCard title="Total Disk I/O (KiB/s)">
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="time" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line
-            type="monotone"
-            dataKey="diskWrite"
-            name="write"
-            stroke="#8884d8"
-          />
-          <Line
-            type="monotone"
-            dataKey="diskRead"
-            name="read"
-            stroke="#82ca9d"
-          />
-        </LineChart>
-      </ChartCard>
-    </div>
+        <ChartCard title="Total Disk I/O (KiB/s)">
+          <div className="flex justify-end mb-2 space-x-2">
+            <button
+              aria-label="full screen"
+              className="p-2 hover:bg-gray-200 rounded"
+            >
+              <Fullscreen className="w-5 h-5" />
+            </button>
+            <button
+              aria-label="share"
+              className="p-2 hover:bg-gray-200 rounded"
+            >
+              <Share className="w-5 h-5" />
+            </button>
+            <button aria-label="info" className="p-2 hover:bg-gray-200 rounded">
+              <Info className="w-5 h-5" />
+            </button>
+            <button aria-label="more" className="p-2 hover:bg-gray-200 rounded">
+              <MoreVertical className="w-5 h-5" />
+            </button>
+          </div>
+          <LineChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="time" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="diskWrite"
+              name="write"
+              stroke="#8884d8"
+            />
+            <Line
+              type="monotone"
+              dataKey="diskRead"
+              name="read"
+              stroke="#82ca9d"
+            />
+          </LineChart>
+        </ChartCard>
+      </div>
+    </FullScreenWrapper>
   );
 };
 
@@ -368,58 +451,55 @@ const KafkaDataTable = ({ chartData }) => {
 };
 
 const ThresholdLine = ({
-  chartWidth,
+  containerWidth,
   chartHeight,
   maxValue,
   onThresholdChange,
-  xOffset = 50, // X-axis offset
-  yOffset = 50, // Top padding
-  bottomOffset = 350, // Y-axis end point
+  xScale,
+  yScale,
+  padding,
 }) => {
-  const [threshold, setThreshold] = useState(500); // Default threshold value
-  const [isDragging, setIsDragging] = useState(false);
+  const [threshold, setThreshold] = useState(500);
 
-  const yScale = (value) =>
-    bottomOffset - (value / maxValue) * (bottomOffset - yOffset);
-
-  const handleMouseDown = () => setIsDragging(true);
-  const handleMouseUp = () => setIsDragging(false);
-
-  const handleMouseMove = (e) => {
-    if (isDragging) {
-      const svg = e.target.closest("svg");
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
-      const newThreshold = Math.round(
-        maxValue - ((svgP.y - yOffset) / (bottomOffset - yOffset)) * maxValue,
-      );
-      setThreshold(Math.max(0, Math.min(newThreshold, maxValue)));
-    }
+  const handleDrag = (e) => {
+    const svg = e.target.ownerSVGElement;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const newThreshold = Math.max(
+      0,
+      Math.min(maxValue, maxValue - (svgP.y / chartHeight) * maxValue),
+    );
+    setThreshold(Math.round(newThreshold));
+    onThresholdChange(Math.round(newThreshold));
   };
-
-  useEffect(() => {
-    onThresholdChange(threshold);
-  }, [threshold, onThresholdChange]);
 
   return (
     <>
       <line
-        x1={xOffset}
+        x1={padding.left}
         y1={yScale(threshold)}
-        x2={chartWidth}
+        x2={containerWidth - padding.right}
         y2={yScale(threshold)}
-        stroke="black"
+        stroke="red"
         strokeWidth="2"
         strokeDasharray="5,5"
         style={{ cursor: "ns-resize" }}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
+        onMouseDown={(e) => {
+          e.preventDefault();
+          document.addEventListener("mousemove", handleDrag);
+          document.addEventListener(
+            "mouseup",
+            () => {
+              document.removeEventListener("mousemove", handleDrag);
+            },
+            { once: true },
+          );
+        }}
       />
       <text
-        x={chartWidth - 5}
+        x={containerWidth - padding.right - 5}
         y={yScale(threshold) - 5}
         fill="red"
         textAnchor="end"
@@ -427,22 +507,101 @@ const ThresholdLine = ({
       >
         Threshold: {threshold}
       </text>
-      <rect
-        x={xOffset}
-        y={yScale(threshold) - 5}
-        width={chartWidth - xOffset}
-        height="10"
-        fill="transparent"
-        style={{ cursor: "ns-resize" }}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-      />
     </>
+  );
+};
+const FullScreenWrapper = ({ children }) => {
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  const handleFullScreenClick = () => {
+    setIsFullScreen(true);
+  };
+
+  const handleClose = () => {
+    setIsFullScreen(false);
+  };
+
+  return (
+    <div className="relative">
+      {!isFullScreen && (
+        <div className="absolute top-2 right-2 z-10">
+          <button
+            aria-label="full screen"
+            className="p-2 hover:bg-gray-200 rounded"
+            onClick={handleFullScreenClick}
+          >
+            <Fullscreen className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      {isFullScreen ? (
+        <div className="fixed inset-0 bg-white z-50 flex flex-col">
+          <div className="flex justify-end p-4">
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+            >
+              Close
+            </button>
+          </div>
+          <div className="flex-grow m-[50px]">{children}</div>
+        </div>
+      ) : (
+        children
+      )}
+    </div>
   );
 };
 
 const KafkaDiagramAndChart = () => {
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(800); // Default width
+  const containerRef = useRef(null);
+  const chartWidth = 800; // You can adjust this value
+  const chartHeight = 400; // You can adjust this value
+  const margin = { top: 20, right: 50, bottom: 70, left: 50 };
+  const PADDING = {
+    top: 20,
+    right: 30,
+    bottom: 50,
+    left: 60,
+  };
+  const xScale = (index) =>
+    PADDING.left +
+    (index / (chartData.length - 1)) *
+      (containerWidth - PADDING.left - PADDING.right);
+
+  const yScale = (value) =>
+    chartHeight -
+    PADDING.bottom -
+    (value / 1000) * (chartHeight - PADDING.top - PADDING.bottom);
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateDimensions(); // Initial measurement
+    window.addEventListener("resize", updateDimensions);
+
+    return () => window.removeEventListener("resize", updateDimensions);
+  }, []);
+
+  const svgRef = useRef(null);
+  const findNearestDataPoint = (mouseX, chartData, svgElement) => {
+    if (!svgElement || chartData.length === 0) return null;
+
+    const svgRect = svgElement.getBoundingClientRect();
+    const chartX = mouseX - svgRect.left;
+    const xRatio = chartX / svgRect.width;
+    const dataIndex = Math.round(xRatio * (chartData.length - 1));
+
+    return chartData[Math.max(0, Math.min(dataIndex, chartData.length - 1))];
+  };
+
   const consumerGroups = ["Group A", "Group B", "Group C"];
   const topics = ["Topic 1", "Topic 2", "Topic 3"];
   const partitions = [
@@ -489,9 +648,38 @@ const KafkaDiagramAndChart = () => {
     return groupActive && topicActive && partitionActive && isConnected;
   };
 
+  const handleFullScreenClick = () => {
+    setIsFullScreen(true);
+  };
   const generateMockData = () => {
     const data = [];
-    const timePoints = 10;
+    let timePoints;
+    let timeInterval;
+
+    switch (timeSeriesOption) {
+      case "1h":
+        timePoints = 60;
+        timeInterval = 1;
+        break;
+      case "6h":
+        timePoints = 72;
+        timeInterval = 5;
+        break;
+      case "24h":
+        timePoints = 96;
+        timeInterval = 15;
+        break;
+      case "7d":
+        timePoints = 168;
+        timeInterval = 60;
+        break;
+      default:
+        timePoints = 72;
+        timeInterval = 5;
+    }
+
+    const now = new Date();
+
     const activeGroups =
       selectedGroups.length > 0 ? selectedGroups : consumerGroups;
     const activeTopics = selectedTopics.length > 0 ? selectedTopics : topics;
@@ -499,7 +687,14 @@ const KafkaDiagramAndChart = () => {
       selectedPartitions.length > 0 ? selectedPartitions : partitions;
 
     for (let i = 0; i < timePoints; i++) {
-      const point = { time: `T${i}` };
+      const pointTime = new Date(now - (timePoints - i) * timeInterval * 60000);
+      const point = {
+        time: pointTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
       activeGroups.forEach((group) => {
         activeTopics.forEach((topic) => {
           if (groupTopicRelations[group].includes(topic)) {
@@ -514,7 +709,6 @@ const KafkaDiagramAndChart = () => {
     }
     return data;
   };
-
   const [threshold, setThreshold] = useState(500);
 
   const handleThresholdChange = (newThreshold) => {
@@ -524,17 +718,6 @@ const KafkaDiagramAndChart = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
-
-  const handleLineClick = useCallback(
-    (key) => {
-      // Set modal data for the selected line
-      setModalData(
-        chartData.map((point) => ({ time: point.time, lag: point[key] })),
-      );
-      setIsModalOpen(true);
-    },
-    [chartData],
-  );
 
   const handleModalClose = useCallback(() => {
     setIsModalOpen(false);
@@ -546,28 +729,61 @@ const KafkaDiagramAndChart = () => {
     setChartData(newData);
   };
 
-  useEffect(() => {
-    applyFilters();
-  }, []);
-
+  // tooltip for consumer lag chart
   const [tooltipData, setTooltipData] = useState(null);
 
-  const handleLineHover = useCallback((key, time, lag) => {
-    setHoveredLine(key);
-    setTooltipData({ key, time, lag });
-  }, []);
-
+  const handleLineHover = useCallback(
+    (key, time, lag, clientX, clientY) => {
+      if (svgRef.current && time !== undefined && lag !== undefined) {
+        const svgRect = svgRef.current.getBoundingClientRect();
+        const x = (clientX - svgRect.left) * (chartWidth / svgRect.width);
+        const y = (clientY - svgRect.top) * (chartHeight / svgRect.height);
+        setHoveredLine(key);
+        setTooltipData({ key, time, lag, x, y });
+      }
+    },
+    [chartWidth, chartHeight],
+  );
   const handleLineLeave = useCallback(() => {
     setHoveredLine(null);
     setTooltipData(null);
   }, []);
 
+  const [timeSeriesOption, setTimeSeriesOption] = useState("6h");
+  const timeSeriesOptions = [
+    { value: "1h", label: "Last 1 hour" },
+    { value: "6h", label: "Last 6 hours" },
+    { value: "24h", label: "Last 24 hours" },
+    { value: "7d", label: "Last 7 days" },
+  ];
+
+  const handleLineClick = useCallback(
+    (key) => {
+      const [group, topic, partition] = key.split("-");
+      const clickedData = chartData.map((point) => ({
+        time: point.time,
+        lag: point[key],
+      }));
+      setModalData({
+        group,
+        topic,
+        partition,
+        data: clickedData,
+        timeSeriesOption,
+      });
+      setIsModalOpen(true);
+    },
+    [chartData, timeSeriesOption],
+  );
+
+  useEffect(() => {
+    applyFilters();
+  }, [timeSeriesOption]);
   return (
     <div className="p-4 bg-white">
       <h2 className="text-2xl font-bold mb-4">
         Kafka Relationship Diagram and Consumer Lag Chart
       </h2>
-
       {/* Filters */}
       <div className="mb-4 flex space-x-4">
         <div>
@@ -620,14 +836,12 @@ const KafkaDiagramAndChart = () => {
           ))}
         </div>
       </div>
-
       <button
         onClick={applyFilters}
         className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
         Apply Filters
       </button>
-
       {/* Relationship Diagram */}
       <svg width="800" height="500" viewBox="0 0 800 500">
         {/* Consumer Groups */}
@@ -764,146 +978,238 @@ const KafkaDiagramAndChart = () => {
           Partitions
         </text>
       </svg>
-
       {/* Interactive Consumer Lag Chart */}
-      <div className="mt-8">
-        <h3 className="text-xl font-bold mb-4">Consumer Lag Chart</h3>
-        <svg width="800" height="400" viewBox="0 0 800 400">
-          <g // Wrap lines and points in a group for hover events
-            onMouseEnter={(e) => {
-              const pointIndex = Math.floor((e.clientX - 50) / 70);
-              const hoveredKey = Object.keys(chartData[pointIndex]).find(
-                (key) => key !== "time",
-              );
-              const point = chartData[pointIndex];
-              handleLineHover(hoveredKey, point.time, point[hoveredKey]);
-            }}
-            onMouseLeave={handleLineLeave}
-          >
-            {/* X and Y axes */}
-            <line x1="50" y1="350" x2="750" y2="350" stroke="black" />
-            <line x1="50" y1="350" x2="50" y2="50" stroke="black" />
-            {/* Horizontal gridlines for y-axis steps */}
-            {[0, 250, 500, 750, 1000].map((value, index) => (
-              <line
-                key={index}
-                x1="50" // Start at the beginning of the chart area
-                y1={350 - value / 3} // Scale the y-value to the chart's coordinates
-                x2="750" // Extend to the end of the chart area
-                y2={350 - value / 3}
-                stroke="lightgray"
-                strokeDasharray="4"
-              />
-            ))}
-            {/* Chart lines and points */}
-            {chartData.length > 0 &&
-              Object.keys(chartData[0])
-                .filter((key) => key !== "time")
-                .map((key, index) => (
-                  <g
-                    key={key}
-                    onMouseEnter={(e) => {
-                      const point = chartData[Math.floor(e.clientX / 70)];
-                      handleLineHover(key, point.time, point[key]);
-                    }}
-                    onMouseLeave={handleLineLeave}
-                  >
-                    <path
-                      d={chartData
-                        .map(
-                          (point, i) =>
-                            `${i === 0 ? "M" : "L"} ${50 + i * 70} ${
-                              350 - point[key] / 3
-                            }`,
-                        )
-                        .join(" ")}
-                      fill="none"
-                      stroke={groupColors[key.split("-")[0]]}
-                      strokeWidth="2"
-                      opacity={
-                        hoveredLine ? (hoveredLine === key ? 1 : 0.2) : 1
-                      }
-                      cursor="pointer" // Indicate interactive area
-                      onClick={() => handleLineClick(key)}
-                    />
-                  </g>
+      <FullScreenWrapper>
+        <div className="mt-8">
+          <h3 className="text-xl font-bold mb-4">Consumer Lag Chart</h3>
+          <div className="mb-4">
+            <label htmlFor="timeSeriesSelect" className="mr-2">
+              Time Range:
+            </label>
+            <select
+              id="timeSeriesSelect"
+              value={timeSeriesOption}
+              onChange={(e) => setTimeSeriesOption(e.target.value)}
+              className="border rounded p-1"
+            >
+              {timeSeriesOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex justify-end mb-2 space-x-2">
+            <button
+              aria-label="full screen"
+              className="p-2 hover:bg-gray-200 rounded"
+              onClick={handleFullScreenClick}
+            >
+              <Fullscreen className="w-5 h-5" />
+            </button>
+            <button
+              aria-label="share"
+              className="p-2 hover:bg-gray-200 rounded"
+            >
+              <Share className="w-5 h-5" />
+            </button>
+            <button aria-label="info" className="p-2 hover:bg-gray-200 rounded">
+              <Info className="w-5 h-5" />
+            </button>
+            <button aria-label="more" className="p-2 hover:bg-gray-200 rounded">
+              <MoreVertical className="w-5 h-5" />
+            </button>
+          </div>
+          <div ref={containerRef} className="w-full h-[400px]">
+            <svg
+              ref={svgRef}
+              width="100%"
+              height="100%"
+              viewBox={`0 0 ${containerWidth} ${chartHeight}`}
+              preserveAspectRatio="xMidYMid meet"
+            >
+              <g>
+                {/* X and Y axes */}
+                <line
+                  x1={PADDING.left}
+                  y1={chartHeight - PADDING.bottom}
+                  x2={containerWidth - PADDING.right}
+                  y2={chartHeight - PADDING.bottom}
+                  stroke="black"
+                  strokeWidth="2"
+                />
+                <line
+                  x1={PADDING.left}
+                  y1={chartHeight - PADDING.bottom}
+                  x2={PADDING.left}
+                  y2={PADDING.top}
+                  stroke="black"
+                  strokeWidth="2"
+                />
+
+                {/* Horizontal gridlines */}
+                {[0, 250, 500, 750, 1000].map((value, index) => (
+                  <line
+                    key={index}
+                    x1={PADDING.left}
+                    y1={yScale(value)}
+                    x2={containerWidth - PADDING.right}
+                    y2={yScale(value)}
+                    stroke="lightgray"
+                    strokeDasharray="4"
+                  />
                 ))}
-            {/* Threshold Line */}
-            <ThresholdLine
-              chartWidth={750}
-              chartHeight={300}
-              maxValue={1000}
-              onThresholdChange={handleThresholdChange}
-              xOffset={50}
-              yOffset={17}
-              bottomOffset={350}
-            />
-            {/* X-axis labels */}
-            {chartData.map((point, index) => (
-              <text key={index} x={50 + index * 70} y="370" textAnchor="middle">
-                {point.time}
-              </text>
-            ))}
 
-            {/* Y-axis labels */}
-            {[0, 250, 500, 750, 1000].map((value, index) => (
-              <text
-                key={index}
-                x="40"
-                y={350 - value / 3}
-                textAnchor="end"
-                alignmentBaseline="middle"
-              >
-                {value}
-              </text>
-            ))}
-            {/* Tooltip */}
-            {tooltipData && (
-              <div
-                className="absolute bg-white border p-2 rounded shadow-md"
-                style={{
-                  left: Math.min(
-                    700, // Limit to chart area width
-                    Math.max(
-                      50, // Keep within chart area
-                      50 + chartData.indexOf(tooltipData.time) * 70 - 50,
-                    ),
-                  ),
-                  top: Math.min(
-                    350, // Limit to chart area height
-                    Math.max(50, 350 - tooltipData.lag / 3 - 30), // Keep within chart area and above line
-                  ),
-                  zIndex: 10,
-                }}
-              >
-                <div>
-                  {tooltipData.key}: {tooltipData.lag}
-                </div>
-                <div
-                  className="text-blue-500 underline cursor-pointer"
-                  onClick={() => handleLineClick(tooltipData.key)}
-                >
-                  View Details
-                </div>
-              </div>
-            )}
-          </g>
-        </svg>
-      </div>
+                {/* Chart lines */}
+                {chartData.length > 0 &&
+                  Object.keys(chartData[0])
+                    .filter((key) => key !== "time")
+                    .map((key) => (
+                      <path
+                        key={key}
+                        d={chartData
+                          .map(
+                            (point, i) =>
+                              `${i === 0 ? "M" : "L"} ${xScale(i)} ${yScale(
+                                point[key],
+                              )}`,
+                          )
+                          .join(" ")}
+                        fill="none"
+                        stroke={groupColors[key.split("-")[0]]}
+                        strokeWidth="2"
+                        opacity={
+                          hoveredLine ? (hoveredLine === key ? 1 : 0.1) : 1
+                        }
+                        cursor="pointer"
+                        onClick={() => handleLineClick(key)}
+                        onMouseEnter={(e) => {
+                          if (svgRef.current) {
+                            const point = findNearestDataPoint(
+                              e.clientX,
+                              chartData,
+                              svgRef.current,
+                            );
+                            if (point) {
+                              handleLineHover(
+                                key,
+                                point.time,
+                                point[key],
+                                e.clientX,
+                                e.clientY,
+                              );
+                            }
+                          }
+                        }}
+                        onMouseLeave={handleLineLeave}
+                        style={{ transition: "opacity 0.2s ease-in-out" }}
+                      />
+                    ))}
 
+                {/* X-axis labels */}
+                {chartData.map((point, index) => (
+                  <text
+                    key={index}
+                    x={xScale(index)}
+                    y={chartHeight - PADDING.bottom + 20}
+                    textAnchor="middle"
+                    fontSize="10"
+                    transform={`rotate(-45 ${xScale(index)},${
+                      chartHeight - PADDING.bottom + 20
+                    })`}
+                  >
+                    {point.time}
+                  </text>
+                ))}
+
+                {/* Y-axis labels */}
+                {[0, 250, 500, 750, 1000].map((value) => (
+                  <text
+                    key={value}
+                    x={PADDING.left - 10}
+                    y={yScale(value)}
+                    textAnchor="end"
+                    alignmentBaseline="middle"
+                    fontSize="10"
+                  >
+                    {value}
+                  </text>
+                ))}
+
+                {/* Threshold Line */}
+                <ThresholdLine
+                  containerWidth={containerWidth}
+                  chartHeight={chartHeight}
+                  maxValue={1000}
+                  onThresholdChange={handleThresholdChange}
+                  xScale={xScale}
+                  yScale={yScale}
+                  padding={PADDING}
+                />
+
+                {/* Tooltip */}
+                {tooltipData && (
+                  <foreignObject
+                    x={tooltipData.x}
+                    y={tooltipData.y - 40}
+                    width="150"
+                    height="60"
+                  >
+                    <div
+                      xmlns="http://www.w3.org/1999/xhtml"
+                      className="bg-white border p-2 rounded shadow-md"
+                    >
+                      <div>
+                        {tooltipData.key}: {tooltipData.lag}
+                      </div>
+                      <div
+                        className="text-blue-500 underline cursor-pointer"
+                        onClick={() => handleLineClick(tooltipData.key)}
+                      >
+                        View Details
+                      </div>
+                    </div>
+                  </foreignObject>
+                )}
+              </g>
+            </svg>
+          </div>
+        </div>
+      </FullScreenWrapper>
       {/* Legend */}
       <KafkaDataTable chartData={chartData} />
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed bottom-0 left-0 w-full h-96 bg-white border-t shadow-lg overflow-scroll">
+      {isModalOpen && modalData && (
+        <div className="fixed bottom-0 left-0 w-full h-96 bg-white border-t shadow-lg">
           <h2 className="text-xl font-bold p-4">Chart Details</h2>
-          <SystemMetricsDashboard />
+          <div className="px-4 py-2 bg-gray-100 mb-4 flex gap-4">
+            <p>
+              <strong>Group:</strong> {modalData.group}
+            </p>
+            <p>
+              <strong>Topic:</strong> {modalData.topic}
+            </p>
+            <p>
+              <strong>Partition:</strong> {modalData.partition}
+            </p>
+            <p>
+              <strong>Time Range:</strong>{" "}
+              {
+                timeSeriesOptions.find(
+                  (opt) => opt.value === modalData.timeSeriesOption,
+                ).label
+              }
+            </p>
+          </div>
           <button
             onClick={handleModalClose}
             className="absolute top-4 right-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
           >
             Close
           </button>
+          <div className="overflow-scroll h-full">
+            <SystemMetricsDashboard />
+          </div>
         </div>
       )}
       {/* <div className="mt-4 flex flex-wrap">
