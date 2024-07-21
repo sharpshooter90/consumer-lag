@@ -1,14 +1,18 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { ThemeProvider } from "next-themes";
+
 import { ThemeToggle } from "./ThemeToggle";
 import KafkaDiagramAndChart from "./KafkaDiagramAndChart";
 
-const App = () => {
+const App = ({ Component, pageProps }) => {
   return (
-    <div className="p-4 bg-white">
-      <ThemeToggle />
-      <KafkaDiagramAndChart />
-    </div>
+    <ThemeProvider attribute="class">
+      <div className="p-4 bg-white">
+        <ThemeToggle />
+
+        <KafkaDiagramAndChart />
+      </div>
+    </ThemeProvider>
   );
 };
 

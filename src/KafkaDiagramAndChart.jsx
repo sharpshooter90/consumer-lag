@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import FullScreenWrapper from "./FullScreenWrapper";
+import ChartDetailsModal from "./ChartDetailsModal";
 import ThresholdLine from "./ThresholdLine";
 import KafkaDataTable from "./KafkaDataTable";
 import SystemMetricsDashboard from "./SystemMetricsDashboard";
@@ -38,6 +39,7 @@ import {
   timeSeriesOptions,
   PADDING,
 } from "./constants";
+import ChartTooltip from "./ChartTooltip";
 
 const KafkaDiagramAndChart = () => {
   const [activeTab, setActiveTab] = useState("table");
@@ -48,12 +50,14 @@ const KafkaDiagramAndChart = () => {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedPartitions, setSelectedPartitions] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [tooltipData, setTooltipData] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [hoveredLine, setHoveredLine] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
+
   const [threshold, setThreshold] = useState(500);
   const [timeSeriesOption, setTimeSeriesOption] = useState("6h");
-  const [tooltipData, setTooltipData] = useState(null);
 
   const containerRef = useRef(null);
   const svgRef = useRef(null);
@@ -82,10 +86,20 @@ const KafkaDiagramAndChart = () => {
     setThreshold(newThreshold);
     // You can add logic here to trigger alerts when data points cross the threshold
   };
-  const handleModalClose = useCallback(() => {
+
+  const handleModalClose = () => {
     setIsModalOpen(false);
     setModalData(null);
-  }, []);
+  };
+
+  const handleOpenModal = (data) => {
+    setModalData(data);
+    setIsModalOpen(true);
+  };
+  // const handleModalClose = useCallback(() => {
+  //   setIsModalOpen(false);
+  //   setModalData(null);
+  // }, []);
   const applyFilters = () => {
     const newData = generateMockData(
       timeSeriesOption,
@@ -100,17 +114,60 @@ const KafkaDiagramAndChart = () => {
     setChartData(newData);
   };
   const handleLineHover = useCallback(
-    (key, time, lag, clientX, clientY) => {
-      if (svgRef.current && time !== undefined && lag !== undefined) {
+    (event, key) => {
+      if (svgRef.current) {
         const svgRect = svgRef.current.getBoundingClientRect();
-        const x = (clientX - svgRect.left) * (chartWidth / svgRect.width);
-        const y = (clientY - svgRect.top) * (chartHeight / svgRect.height);
-        setHoveredLine(key);
-        setTooltipData({ key, time, lag, x, y });
+        const mouseX = event.clientX - svgRect.left;
+        const mouseY = event.clientY - svgRect.top;
+
+        const nearestPoint = findNearestDataPoint(
+          mouseX,
+          chartData,
+          svgRef.current,
+        );
+        if (nearestPoint) {
+          setTooltipData({
+            key,
+            time: nearestPoint.time,
+            lag: nearestPoint[key],
+          });
+          setTooltipPosition({ x: event.clientX, y: event.clientY });
+          setHoveredLine(key);
+        }
       }
     },
-    [chartWidth, chartHeight],
+    [chartData],
   );
+
+  const handleMouseMove = useCallback(
+    (event) => {
+      if (svgRef.current && hoveredLine) {
+        const svgRect = svgRef.current.getBoundingClientRect();
+        const mouseX = event.clientX - svgRect.left;
+        const mouseY = event.clientY - svgRect.top;
+
+        const nearestPoint = findNearestDataPoint(
+          mouseX,
+          chartData,
+          svgRef.current,
+        );
+        if (nearestPoint) {
+          setTooltipData({
+            key: hoveredLine,
+            time: nearestPoint.time,
+            lag: nearestPoint[hoveredLine],
+          });
+          setTooltipPosition({ x: event.clientX, y: event.clientY });
+        }
+      }
+    },
+    [chartData, hoveredLine],
+  );
+
+  const handleLineEnter = useCallback((key) => {
+    setHoveredLine(key);
+  }, []);
+
   const handleLineLeave = useCallback(() => {
     setHoveredLine(null);
     setTooltipData(null);
@@ -460,11 +517,15 @@ const KafkaDiagramAndChart = () => {
         </CardHeader>
 
         <CardContent>
-          <div ref={containerRef} className="w-full h-[400px]">
+          <div
+            ref={containerRef}
+            className="w-full h-[400px] relative"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleLineLeave}
+          >
             <svg
               ref={svgRef}
               width="100%"
-              // height="100%"
               viewBox={`0 0 ${containerWidth} ${chartHeight}`}
               preserveAspectRatio="xMidYMid meet"
             >
@@ -523,29 +584,10 @@ const KafkaDiagramAndChart = () => {
                         }
                         cursor="pointer"
                         onClick={() => handleLineClick(key)}
-                        onMouseEnter={(e) => {
-                          if (svgRef.current) {
-                            const point = findNearestDataPoint(
-                              e.clientX,
-                              chartData,
-                              svgRef.current,
-                            );
-                            if (point) {
-                              handleLineHover(
-                                key,
-                                point.time,
-                                point[key],
-                                e.clientX,
-                                e.clientY,
-                              );
-                            }
-                          }
-                        }}
-                        onMouseLeave={handleLineLeave}
+                        onMouseEnter={() => handleLineEnter(key)}
                         style={{ transition: "opacity 0.2s ease-in-out" }}
                       />
                     ))}
-
                 {/* X-axis labels */}
                 {chartData.map((point, index) => (
                   <text
@@ -598,7 +640,7 @@ const KafkaDiagramAndChart = () => {
                 />
 
                 {/* Tooltip */}
-                {tooltipData && (
+                {/* {tooltipData && (
                   <foreignObject
                     x={tooltipData.x}
                     y={tooltipData.y - 40}
@@ -620,9 +662,14 @@ const KafkaDiagramAndChart = () => {
                       </div>
                     </div>
                   </foreignObject>
-                )}
+                )} */}
               </g>
             </svg>
+            <ChartTooltip
+              data={tooltipData}
+              position={tooltipPosition}
+              visible={!!tooltipData}
+            />
           </div>
         </CardContent>
       </Card>
@@ -646,39 +693,12 @@ const KafkaDiagramAndChart = () => {
   );
   const renderModal = () => (
     <div>
-      {isModalOpen && modalData && (
-        <div className="fixed bottom-0 left-0 w-full h-96 bg-white border-t shadow-lg">
-          <h2 className="text-xl font-bold p-4">Chart Details</h2>
-          <div className="px-4 py-2 bg-gray-100 mb-4 flex gap-4">
-            <p>
-              <strong>Group:</strong> {modalData.group}
-            </p>
-            <p>
-              <strong>Topic:</strong> {modalData.topic}
-            </p>
-            <p>
-              <strong>Partition:</strong> {modalData.partition}
-            </p>
-            <p>
-              <strong>Time Range:</strong>{" "}
-              {
-                timeSeriesOptions.find(
-                  (opt) => opt.value === modalData.timeSeriesOption,
-                ).label
-              }
-            </p>
-          </div>
-          <button
-            onClick={handleModalClose}
-            className="absolute top-4 right-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
-          >
-            Close
-          </button>
-          <div className="overflow-scroll h-full">
-            <SystemMetricsDashboard />
-          </div>
-        </div>
-      )}
+      <ChartDetailsModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        modalData={modalData}
+        timeSeriesOptions={timeSeriesOptions}
+      />
     </div>
   );
 
