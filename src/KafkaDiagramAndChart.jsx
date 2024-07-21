@@ -180,15 +180,20 @@ const KafkaDiagramAndChart = () => {
   const handleLineClick = useCallback(
     (key) => {
       const [group, topic, partition] = key.split("-");
+      const clickedData = chartData.map((point) => ({
+        time: point.time,
+        lag: point[key],
+      }));
       setModalData({
         group,
         topic,
         partition,
         timeSeriesOption,
+        data: clickedData,
       });
       setIsModalOpen(true);
     },
-    [timeSeriesOption]
+    [chartData, timeSeriesOption]
   );
 
   useEffect(() => {
