@@ -117,7 +117,7 @@ const ChartCard = ({ title, children }) => (
       </div>
     </CardHeader>
     <CardContent>
-      <div className="h-64 w-full max-w-md mx-auto">{children}</div>
+      <div className="h-64 w-full mx-auto">{children}</div>
     </CardContent>
   </Card>
 );
@@ -144,7 +144,7 @@ const ChartComponent = ({ data, lines }) => (
 const SystemMetricsDashboard = () => {
   return (
     <FullScreenWrapper>
-      <div className="p-4 max-w-7xl mx-auto">
+      <div className="p-4 mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="flex gap-4">
             <ChartCard title="Average CPU Load">

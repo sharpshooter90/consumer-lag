@@ -67,3 +67,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+.card-tooltip {
+  @apply bg-white border border-gray-200 rounded-lg shadow-lg;
+}
+
+.card-tooltip .text-muted-foreground {
+  @apply text-gray-500;
+}
+
+.card-tooltip .font-semibold {
+  @apply text-gray-800;
+}

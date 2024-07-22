@@ -44,22 +44,22 @@ const ChartDetailsModal = ({
       onOpenChange={(open) => !open && onClose()}
       snapPoints={[0.5, 1]}
     >
-      <DrawerContent className="h-[50%] overflow-auto">
-        <div className="mx-auto w-full max-w-sm">
+      <DrawerContent className="overflow-auto">
+        <div className="mx-auto w-full">
           <DrawerHeader>
             <DrawerTitle>Chart Details</DrawerTitle>
             <DrawerDescription>Consumer lag information</DrawerDescription>
           </DrawerHeader>
           <div className="p-4 pb-0">
-            <Card className="w-full p-6 flex flex-col gap-4 mb-4">
-              <div className="flex items-center justify-between">
+            <Card className="w-full p-6 flex gap-4 mb-4">
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <FolderIcon className="w-4 h-4" />
                   <span>{group}</span>
                 </div>
                 <h3 className="text-sm font-semibold">{topic}</h3>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <LayersIcon className="w-4 h-4" />
                   <span>Partition {partition}</span>
