@@ -146,7 +146,7 @@ const FilterComponent = ({
           icon={LayersIcon}
         />
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-4 flex-wrap">
         <FilterCategory
           title="Consumer Groups"
           items={consumerGroups}
