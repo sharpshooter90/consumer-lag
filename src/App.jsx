@@ -1,6 +1,7 @@
 import React from "react";
 import { ThemeProvider } from "next-themes";
 import "./styles.css";
+import "./app.css";
 import { ThemeToggle } from "./ThemeToggle";
 import KafkaDiagramAndChart from "./KafkaDiagramAndChart";
 
