@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 import {
   Select,
@@ -59,7 +60,8 @@ const KafkaDiagramAndChart = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
 
-  const [threshold, setThreshold] = useState(500);
+  const [threshold, setThreshold] = useState(2.25); // Or whatever default value you prefer
+
   const [timeSeriesOption, setTimeSeriesOption] = useState("6h");
 
   const containerRef = useRef(null);
@@ -425,6 +427,16 @@ const KafkaDiagramAndChart = () => {
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Consumer Lag Chart</CardTitle>
+          <Input
+            type="number"
+            value={threshold}
+            onChange={(e) => setThreshold(Number(e.target.value))}
+            min="0"
+            max="3"
+            step="0.25"
+            className="w-20"
+          />
+          <span>Threshold (s)</span>
           <div className="flex items-center space-x-2">
             <Select
               value={timeSeriesOption}
@@ -492,10 +504,10 @@ const KafkaDiagramAndChart = () => {
                   strokeWidth="2"
                 />
 
-                {/* Horizontal gridlines */}
-                {[0, 250, 500, 750, 1000].map((value, index) => (
+                {/* Horizontal step lines */}
+                {[0, 0.75, 1.5, 2.25, 3].map((value) => (
                   <line
-                    key={index}
+                    key={value}
                     x1={PADDING.left}
                     y1={yScale(value)}
                     x2={containerWidth - PADDING.right}
@@ -504,6 +516,26 @@ const KafkaDiagramAndChart = () => {
                     strokeDasharray="4"
                   />
                 ))}
+
+                {/* Threshold line */}
+                <line
+                  x1={PADDING.left}
+                  y1={yScale(threshold)}
+                  x2={containerWidth - PADDING.right}
+                  y2={yScale(threshold)}
+                  stroke="red"
+                  strokeWidth="2"
+                  strokeDasharray="5,5"
+                />
+                <text
+                  x={containerWidth - PADDING.right}
+                  y={yScale(threshold) - 5}
+                  fill="red"
+                  textAnchor="end"
+                  fontSize="12"
+                >
+                  Threshold: {threshold}
+                </text>
 
                 {/* Chart lines */}
                 {chartData.length > 0 &&
@@ -537,7 +569,6 @@ const KafkaDiagramAndChart = () => {
                         style={{ transition: "opacity 0.2s ease-in-out" }}
                       />
                     ))}
-
                 {/* X-axis labels */}
                 {chartData.map((point, index) => (
                   <text
@@ -569,6 +600,19 @@ const KafkaDiagramAndChart = () => {
                 ))}
 
                 {/* Y-axis label */}
+                {[0, 0.75, 1.5, 2.25, 3].map((value) => (
+                  <text
+                    key={value}
+                    x={PADDING.left - 10}
+                    y={yScale(value)}
+                    textAnchor="end"
+                    alignmentBaseline="middle"
+                    fontSize="10"
+                  >
+                    {value}
+                  </text>
+                ))}
+                {/* Y-axis label */}
                 <text
                   x={-chartHeight / 2}
                   y={PADDING.left / 3}
@@ -580,7 +624,7 @@ const KafkaDiagramAndChart = () => {
                   Delay in Seconds
                 </text>
 
-                {/* Threshold Line */}
+                {/* Threshold Line
                 <ThresholdLine
                   containerWidth={containerWidth}
                   chartHeight={chartHeight}
@@ -589,7 +633,7 @@ const KafkaDiagramAndChart = () => {
                   xScale={xScale}
                   yScale={yScale}
                   padding={PADDING}
-                />
+                /> */}
               </g>
             </svg>
             <ChartTooltip
