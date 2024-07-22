@@ -18,10 +18,20 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
-const KafkaDataTable = ({ chartData }) => {
+const KafkaDataTable = ({ chartData, onRowHover, onRowLeave, onItemClick }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const handleRowClick = (item) => {
+    const key = `${item.group}-${item.topic}-${item.partition}`;
+    onItemClick(key);
+  };
 
   const flattenedData = useMemo(() => {
     if (!chartData.length) return [];
@@ -39,7 +49,7 @@ const KafkaDataTable = ({ chartData }) => {
             lagPercentage: ((value / 3) * 100).toFixed(2) + "%",
             status: value > 2.25 ? "High" : value > 1.5 ? "Medium" : "Low",
           };
-        }),
+        })
     );
   }, [chartData]);
 
@@ -71,7 +81,7 @@ const KafkaDataTable = ({ chartData }) => {
         (item) =>
           item.group.toLowerCase().includes(lowerQuery) ||
           item.topic.toLowerCase().includes(lowerQuery) ||
-          item.partition.toLowerCase().includes(lowerQuery),
+          item.partition.toLowerCase().includes(lowerQuery)
       );
     }
 
@@ -96,7 +106,7 @@ const KafkaDataTable = ({ chartData }) => {
   const pageCount = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   return (
@@ -151,27 +161,54 @@ const KafkaDataTable = ({ chartData }) => {
           </TableHeader>
           <TableBody>
             {paginatedData.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell>{item.time}</TableCell>
-                <TableCell>{item.group}</TableCell>
-                <TableCell>{item.topic}</TableCell>
-                <TableCell>{item.partition}</TableCell>
-                <TableCell>{item.lag}</TableCell>
-                <TableCell>{item.lagPercentage}</TableCell>
-                <TableCell>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      item.status === "High"
-                        ? "bg-red-100 text-red-800"
-                        : item.status === "Medium"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                    }`}
+              <Popover key={index}>
+                <PopoverTrigger asChild>
+                  <TableRow
+                    onMouseEnter={() =>
+                      onRowHover(
+                        `${item.group}-${item.topic}-${item.partition}`
+                      )
+                    }
+                    onMouseLeave={onRowLeave}
+                    className="cursor-pointer"
                   >
-                    {item.status}
-                  </span>
-                </TableCell>
-              </TableRow>
+                    <TableCell>{item.time}</TableCell>
+                    <TableCell>{item.group}</TableCell>
+                    <TableCell>{item.topic}</TableCell>
+                    <TableCell>{item.partition}</TableCell>
+                    <TableCell>{item.lag}</TableCell>
+                    <TableCell>{item.lagPercentage}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          item.status === "High"
+                            ? "bg-red-100 text-red-800"
+                            : item.status === "Medium"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {item.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Details</h4>
+                      <p className="text-sm text-muted-foreground">
+                        View more details or open in drawer
+                      </p>
+                    </div>
+                    <div className="grid gap-2">
+                      <Button onClick={() => handleRowClick(item)}>
+                        Open in Drawer
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             ))}
           </TableBody>
         </Table>

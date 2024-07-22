@@ -39,7 +39,11 @@ const ChartDetailsModal = ({
     : "Unknown time range";
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose} snapPoints={[0.5, 1]}>
+    <Drawer
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+      snapPoints={[0.5, 1]}
+    >
       <DrawerContent className="h-[50%] overflow-auto">
         <div className="mx-auto w-full max-w-sm">
           <DrawerHeader>
@@ -80,7 +84,9 @@ const ChartDetailsModal = ({
           <SystemMetricsDashboard />
           <DrawerFooter>
             <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
             </DrawerClose>
           </DrawerFooter>
         </div>

@@ -40,6 +40,7 @@ import {
   PADDING,
 } from "./constants";
 import ChartTooltip from "./ChartTooltip";
+import FilterComponent from "./FilterComponent";
 
 const KafkaDiagramAndChart = () => {
   const [activeTab, setActiveTab] = useState("table");
@@ -49,10 +50,12 @@ const KafkaDiagramAndChart = () => {
   const [selectedGroups, setSelectedGroups] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [selectedPartitions, setSelectedPartitions] = useState([]);
+
   const [chartData, setChartData] = useState([]);
   const [tooltipData, setTooltipData] = useState(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const [hoveredLine, setHoveredLine] = useState(null);
+  const [hoveredTableRow, setHoveredTableRow] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
 
@@ -113,31 +116,31 @@ const KafkaDiagramAndChart = () => {
     );
     setChartData(newData);
   };
-  const handleLineHover = useCallback(
-    (event, key) => {
-      if (svgRef.current) {
-        const svgRect = svgRef.current.getBoundingClientRect();
-        const mouseX = event.clientX - svgRect.left;
-        const mouseY = event.clientY - svgRect.top;
+  // const handleLineHover = useCallback(
+  //   (event, key) => {
+  //     if (svgRef.current) {
+  //       const svgRect = svgRef.current.getBoundingClientRect();
+  //       const mouseX = event.clientX - svgRect.left;
+  //       const mouseY = event.clientY - svgRect.top;
 
-        const nearestPoint = findNearestDataPoint(
-          mouseX,
-          chartData,
-          svgRef.current
-        );
-        if (nearestPoint) {
-          setTooltipData({
-            key,
-            time: nearestPoint.time,
-            lag: nearestPoint[key],
-          });
-          setTooltipPosition({ x: event.clientX, y: event.clientY });
-          setHoveredLine(key);
-        }
-      }
-    },
-    [chartData]
-  );
+  //       const nearestPoint = findNearestDataPoint(
+  //         mouseX,
+  //         chartData,
+  //         svgRef.current
+  //       );
+  //       if (nearestPoint) {
+  //         setTooltipData({
+  //           key,
+  //           time: nearestPoint.time,
+  //           lag: nearestPoint[key],
+  //         });
+  //         setTooltipPosition({ x: event.clientX, y: event.clientY });
+  //         setHoveredLine(key);
+  //       }
+  //     }
+  //   },
+  //   [chartData]
+  // );
 
   const handleMouseMove = useCallback(
     (event) => {
@@ -167,17 +170,23 @@ const KafkaDiagramAndChart = () => {
     },
     [chartData, hoveredLine]
   );
-
-  const handleLineEnter = useCallback((key) => {
+  const handleLineHover = useCallback((key) => {
     setHoveredLine(key);
   }, []);
 
   const handleLineLeave = useCallback(() => {
     setHoveredLine(null);
-    setTooltipData(null);
   }, []);
 
-  const handleLineClick = useCallback(
+  const handleTableRowHover = useCallback((key) => {
+    setHoveredTableRow(key);
+  }, []);
+
+  const handleTableRowLeave = useCallback(() => {
+    setHoveredTableRow(null);
+  }, []);
+
+  const handleItemClick = useCallback(
     (key) => {
       const [group, topic, partition] = key.split("-");
       const clickedData = chartData.map((point) => ({
@@ -188,13 +197,18 @@ const KafkaDiagramAndChart = () => {
         group,
         topic,
         partition,
-        timeSeriesOption,
         data: clickedData,
+        timeSeriesOption,
       });
       setIsModalOpen(true);
     },
     [chartData, timeSeriesOption]
   );
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    // Don't reset modalData here
+  }, []);
 
   useEffect(() => {
     applyFilters();
@@ -215,97 +229,18 @@ const KafkaDiagramAndChart = () => {
 
   // jsx blocks
   const renderFilters = () => (
-    <Card className="mb-4">
-      <CardHeader>
-        <CardTitle>Filters</CardTitle>
-      </CardHeader>
-      <CardContent className="flex space-x-4">
-        <div>
-          <h3 className="font-bold">Consumer Groups</h3>
-          {consumerGroups.map((group) => (
-            <div key={group} className="flex items-center space-x-2 gap-2 mb-2">
-              <Checkbox
-                id={`group-${group}`}
-                checked={selectedGroups.includes(group)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setSelectedGroups([...selectedGroups, group]);
-                  } else {
-                    setSelectedGroups(
-                      selectedGroups.filter((g) => g !== group)
-                    );
-                  }
-                }}
-              />
-              <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                htmlFor={`group-${group}`}
-              >
-                {group}
-              </label>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h3 className="font-bold">Topics</h3>
-          {topics.map((topic) => (
-            <div key={topic} className="flex items-center gap-2 mb-2 space-x-2">
-              <Checkbox
-                id={`topic-${topic}`}
-                checked={selectedTopics.includes(topic)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setSelectedTopics([...selectedTopics, topic]);
-                  } else {
-                    setSelectedTopics(
-                      selectedTopics.filter((t) => t !== topic)
-                    );
-                  }
-                }}
-              />
-              <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                htmlFor={`topic-${topic}`}
-              >
-                {topic}
-              </label>
-            </div>
-          ))}
-        </div>
-        <div>
-          <h3 className="font-bold">Partitions</h3>
-          {partitions.map((partition) => (
-            <div
-              key={partition}
-              className="flex items-center space-x-2 gap-2 mb-2"
-            >
-              <Checkbox
-                id={`partition-${partition}`}
-                checked={selectedPartitions.includes(partition)}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    setSelectedPartitions([...selectedPartitions, partition]);
-                  } else {
-                    setSelectedPartitions(
-                      selectedPartitions.filter((p) => p !== partition)
-                    );
-                  }
-                }}
-              />
-              <label
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                htmlFor={`partition-${partition}`}
-              >
-                {partition}
-              </label>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button onClick={applyFilters}>Apply Filters</Button>
-      </CardFooter>
-    </Card>
+    <FilterComponent
+      consumerGroups={consumerGroups}
+      topics={topics}
+      partitions={partitions}
+      selectedGroups={selectedGroups}
+      selectedTopics={selectedTopics}
+      selectedPartitions={selectedPartitions}
+      setSelectedGroups={setSelectedGroups}
+      setSelectedTopics={setSelectedTopics}
+      setSelectedPartitions={setSelectedPartitions}
+      applyFilters={applyFilters}
+    />
   );
   const renderDiagram = () => (
     <div>
@@ -333,7 +268,7 @@ const KafkaDiagramAndChart = () => {
                         selectedGroups.length === 0 ||
                         selectedGroups.includes(group)
                           ? 1
-                          : 0.4
+                          : 0.1
                       }
                     />
                     <text
@@ -366,7 +301,7 @@ const KafkaDiagramAndChart = () => {
                             groupTopicRelations
                           )
                             ? 1
-                            : 0.4
+                            : 0.1
                         }
                       />
                     ))}
@@ -390,7 +325,7 @@ const KafkaDiagramAndChart = () => {
                         selectedTopics.length === 0 ||
                         selectedTopics.includes(topic)
                           ? 1
-                          : 0.4
+                          : 0.1
                       }
                     />
                     <text
@@ -424,7 +359,7 @@ const KafkaDiagramAndChart = () => {
                                 groupTopicRelations
                               )
                                 ? 1
-                                : 0.4
+                                : 0.1
                             }
                           />
                         ))
@@ -449,7 +384,7 @@ const KafkaDiagramAndChart = () => {
                         selectedPartitions.length === 0 ||
                         selectedPartitions.includes(partition)
                           ? 1
-                          : 0.4
+                          : 0.1
                       }
                     />
                     <text
@@ -480,7 +415,12 @@ const KafkaDiagramAndChart = () => {
       </Card>
     </div>
   );
-  const renderChart = () => (
+  const renderChart = (
+    hoveredTableRow,
+    onLineHover,
+    onLineLeave,
+    onLineClick
+  ) => (
     <FullScreenWrapper>
       <Card className="mt-8">
         <CardHeader>
@@ -525,7 +465,7 @@ const KafkaDiagramAndChart = () => {
             ref={containerRef}
             className="w-full h-[400px] relative"
             onMouseMove={handleMouseMove}
-            onMouseLeave={handleLineLeave}
+            onMouseLeave={onLineLeave}
           >
             <svg
               ref={svgRef}
@@ -584,14 +524,20 @@ const KafkaDiagramAndChart = () => {
                         stroke={groupColors[key.split("-")[0]]}
                         strokeWidth="2"
                         opacity={
-                          hoveredLine ? (hoveredLine === key ? 1 : 0.1) : 1
+                          hoveredLine || hoveredTableRow
+                            ? hoveredLine === key || hoveredTableRow === key
+                              ? 1
+                              : 0.1
+                            : 1
                         }
                         cursor="pointer"
-                        onClick={() => handleLineClick(key)}
-                        onMouseEnter={() => handleLineEnter(key)}
+                        onClick={() => onLineClick(key)}
+                        onMouseEnter={() => onLineHover(key)}
+                        onMouseLeave={onLineLeave}
                         style={{ transition: "opacity 0.2s ease-in-out" }}
                       />
                     ))}
+
                 {/* X-axis labels */}
                 {chartData.map((point, index) => (
                   <text
@@ -608,6 +554,7 @@ const KafkaDiagramAndChart = () => {
                   </text>
                 ))}
 
+                {/* Y-axis labels */}
                 {[0, 0.75, 1.5, 2.25, 3].map((value) => (
                   <text
                     key={value}
@@ -620,6 +567,7 @@ const KafkaDiagramAndChart = () => {
                     {value}
                   </text>
                 ))}
+
                 {/* Y-axis label */}
                 <text
                   x={-chartHeight / 2}
@@ -642,31 +590,6 @@ const KafkaDiagramAndChart = () => {
                   yScale={yScale}
                   padding={PADDING}
                 />
-
-                {/* Tooltip */}
-                {/* {tooltipData && (
-                  <foreignObject
-                    x={tooltipData.x}
-                    y={tooltipData.y - 40}
-                    width="150"
-                    height="60"
-                  >
-                    <div
-                      xmlns="http://www.w3.org/1999/xhtml"
-                      className="bg-white border p-2 rounded shadow-md"
-                    >
-                      <div>
-                        {tooltipData.key}: {tooltipData.lag}
-                      </div>
-                      <div
-                        className="text-blue-500 underline cursor-pointer"
-                        onClick={() => handleLineClick(tooltipData.key)}
-                      >
-                        View Details
-                      </div>
-                    </div>
-                  </foreignObject>
-                )} */}
               </g>
             </svg>
             <ChartTooltip
@@ -688,7 +611,12 @@ const KafkaDiagramAndChart = () => {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="table">
-        <KafkaDataTable chartData={chartData} />
+        <KafkaDataTable
+          chartData={chartData}
+          onRowHover={handleTableRowHover}
+          onRowLeave={handleTableRowLeave}
+          onItemClick={handleItemClick}
+        />
       </TabsContent>
       <TabsContent value="placeholder">
         <SystemMetricsDashboard />
@@ -699,7 +627,7 @@ const KafkaDiagramAndChart = () => {
     <div>
       <ChartDetailsModal
         isOpen={isModalOpen}
-        onClose={handleModalClose}
+        onClose={handleCloseModal}
         modalData={modalData}
         timeSeriesOptions={timeSeriesOptions}
       />
@@ -718,7 +646,12 @@ const KafkaDiagramAndChart = () => {
       {renderDiagram()}
 
       {/* Interactive Consumer Lag Chart */}
-      {renderChart()}
+      {renderChart(
+        hoveredTableRow,
+        handleLineHover,
+        handleLineLeave,
+        handleItemClick
+      )}
 
       {/* Horizontal Tab */}
       {renderTabs()}
