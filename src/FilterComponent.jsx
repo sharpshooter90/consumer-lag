@@ -1,11 +1,4 @@
 import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,7 +7,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import {
-  UsersIcon,
+  FolderIcon,
   TagIcon,
   LayersIcon,
   ChevronDownIcon,
@@ -138,7 +131,7 @@ const FilterComponent = ({
           title="Consumer Groups"
           selectedItems={selectedGroups}
           onRemove={(item) => handleRemove("group", item)}
-          icon={UsersIcon}
+          icon={FolderIcon}
         />
         <FilterChips
           title="Topics"
@@ -159,7 +152,7 @@ const FilterComponent = ({
           items={consumerGroups}
           selectedItems={selectedGroups}
           onSelect={(item) => handleSelect("group", item)}
-          icon={UsersIcon}
+          icon={FolderIcon}
           className="w-1/4"
         />
         <FilterCategory
