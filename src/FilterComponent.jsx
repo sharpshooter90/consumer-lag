@@ -50,7 +50,7 @@ const FilterCategory = ({
 
 const FilterChips = ({ title, selectedItems, onRemove, icon: Icon }) =>
   selectedItems.length > 0 && (
-    <div className="bg-primary text-primary-foreground px-3 py-1 rounded-full flex items-center gap-2">
+    <div className="px-3 py-1 rounded-full flex items-center gap-2">
       <Icon className="w-4 h-4" />
       <span>{title}:</span>
       {selectedItems.map((item) => (
