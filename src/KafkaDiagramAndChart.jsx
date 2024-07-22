@@ -27,6 +27,7 @@ import SystemMetricsDashboard from "./SystemMetricsDashboard";
 import { LayoutProvider } from "./LayoutContext";
 import LayoutManager from "./LayoutManager";
 import LayoutControls from "./LayoutControls";
+import KafkaClusterSelect from "./KafkaClusterSelect";
 
 import {
   generateMockData,
@@ -44,6 +45,13 @@ import {
 } from "./constants";
 import ChartTooltip from "./ChartTooltip";
 import FilterComponent from "./FilterComponent";
+
+// Mock Kafka clusters data
+const kafkaClusters = [
+  { id: "cluster1", name: "Production Cluster" },
+  { id: "cluster2", name: "Development Cluster" },
+  { id: "cluster3", name: "Testing Cluster" },
+];
 
 const KafkaDiagramAndChart = () => {
   const [showDiagram, setShowDiagram] = useState(false);
@@ -64,6 +72,12 @@ const KafkaDiagramAndChart = () => {
   const [threshold, setThreshold] = useState(2.25); // Or whatever default value you prefer
 
   const [timeSeriesOption, setTimeSeriesOption] = useState("6h");
+
+  const [selectedCluster, setSelectedCluster] = useState(null);
+
+  const handleClusterSelect = (clusterId) => {
+    setSelectedCluster(clusterId);
+  };
 
   const initialLayout = [
     { id: "render-filter", width: 100 },
@@ -643,6 +657,12 @@ const KafkaDiagramAndChart = () => {
         <h2 className="text-2xl font-bold mb-4">
           Message Queue Monitoring / Kafka
         </h2>
+        <div className="max-w-64">
+          <KafkaClusterSelect
+            clusters={kafkaClusters}
+            onSelect={handleClusterSelect}
+          />
+        </div>
         <LayoutControls />
 
         <LayoutManager>

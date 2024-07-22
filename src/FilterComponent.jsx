@@ -171,9 +171,7 @@ const FilterComponent = ({
           icon={LayersIcon}
           className="w-1/4"
         />
-        <Button onClick={applyFilters} className="w-1/4">
-          Apply Filters
-        </Button>
+        <Button onClick={applyFilters}>Apply Filters</Button>
       </div>
     </div>
   );
