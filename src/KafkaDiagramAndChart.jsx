@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Fullscreen, Share, Info, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 import {
@@ -26,7 +24,9 @@ import ChartDetailsModal from "./ChartDetailsModal";
 import ThresholdLine from "./ThresholdLine";
 import KafkaDataTable from "./KafkaDataTable";
 import SystemMetricsDashboard from "./SystemMetricsDashboard";
+import { LayoutProvider } from "./LayoutContext";
 import LayoutManager from "./LayoutManager";
+import LayoutControls from "./LayoutControls";
 
 import {
   generateMockData,
@@ -46,7 +46,6 @@ import ChartTooltip from "./ChartTooltip";
 import FilterComponent from "./FilterComponent";
 
 const KafkaDiagramAndChart = () => {
-  const [activeTab, setActiveTab] = useState("table");
   const [showDiagram, setShowDiagram] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [containerWidth, setContainerWidth] = useState(800); // Default width
@@ -86,34 +85,10 @@ const KafkaDiagramAndChart = () => {
     PADDING.bottom -
     (value / 3) * (chartHeight - PADDING.top - PADDING.bottom);
 
-  const toggleSelection = (item, currentSelection, setSelection) => {
-    if (currentSelection.includes(item)) {
-      setSelection(currentSelection.filter((i) => i !== item));
-    } else {
-      setSelection([...currentSelection, item]);
-    }
-  };
   const handleFullScreenClick = () => {
     setIsFullScreen(true);
   };
-  const handleThresholdChange = (newThreshold) => {
-    setThreshold(newThreshold);
-    // You can add logic here to trigger alerts when data points cross the threshold
-  };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setModalData(null);
-  };
-
-  const handleOpenModal = (data) => {
-    setModalData(data);
-    setIsModalOpen(true);
-  };
-  // const handleModalClose = useCallback(() => {
-  //   setIsModalOpen(false);
-  //   setModalData(null);
-  // }, []);
   const applyFilters = () => {
     const newData = generateMockData(
       timeSeriesOption,
@@ -663,34 +638,37 @@ const KafkaDiagramAndChart = () => {
   );
 
   return (
-    <div className="p-4 flex flex-col gap-4">
-      <h2 className="text-2xl font-bold mb-4">
-        Message Queue Monitoring / Kafka
-      </h2>
+    <div className="flex flex-col gap-4">
+      <LayoutProvider initialLayout={initialLayout}>
+        <h2 className="text-2xl font-bold mb-4">
+          Message Queue Monitoring / Kafka
+        </h2>
+        <LayoutControls />
 
-      <LayoutManager initialLayout={initialLayout} isEditable={true}>
-        <div id="render-filter">
-          {/* Filters */}
-          {renderFilters()}
-        </div>
-        <div id="render-diagram">
-          {/* Relationship Diagram */}
-          {renderDiagram()}
-        </div>
-        <div id="render-chart">
-          {/* Interactive Consumer Lag Chart */}
-          {renderChart(
-            hoveredTableRow,
-            handleLineHover,
-            handleLineLeave,
-            handleItemClick
-          )}
-        </div>
-        <div id="render-tabs">
-          {/* Horizontal Tab */}
-          {renderTabs()}
-        </div>
-      </LayoutManager>
+        <LayoutManager>
+          <div id="render-filter" className="my-2">
+            {/* Filters */}
+            {renderFilters()}
+          </div>
+          <div id="render-diagram">
+            {/* Relationship Diagram */}
+            {renderDiagram()}
+          </div>
+          <div id="render-chart">
+            {/* Interactive Consumer Lag Chart */}
+            {renderChart(
+              hoveredTableRow,
+              handleLineHover,
+              handleLineLeave,
+              handleItemClick
+            )}
+          </div>
+          <div id="render-tabs" className="my-4">
+            {/* Horizontal Tab */}
+            {renderTabs()}
+          </div>
+        </LayoutManager>
+      </LayoutProvider>
 
       {/* Modal */}
       {renderModal()}

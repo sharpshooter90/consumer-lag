@@ -8,7 +8,7 @@ import KafkaDiagramAndChart from "./KafkaDiagramAndChart";
 const App = ({ Component, pageProps }) => {
   return (
     <ThemeProvider attribute="class">
-      <div className="p-4">
+      <div className="p-8">
         <ThemeToggle />
 
         <KafkaDiagramAndChart />

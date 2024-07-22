@@ -1,57 +1,87 @@
 // DraggableBlock.jsx
-import React from "react";
-import { Draggable } from "react-beautiful-dnd";
-import { Card } from "@/components/ui/card";
+import React, { useRef } from "react";
+import { useDrag, useDrop } from "react-dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GripVertical } from "lucide-react"; // Import an icon for the drag handle
+import { useLayout } from "./LayoutContext";
 
-const DraggableBlock = ({
-  block,
-  index,
-  isEditing,
-  updateWidth,
-  deleteBlock,
-  children,
-}) => {
+const DraggableBlock = ({ block, index, isEditing, children }) => {
+  const { moveBlock, updateBlockWidth, deleteBlock } = useLayout();
+  const ref = useRef(null);
+
+  const [{ handlerId }, drop] = useDrop({
+    accept: "block",
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
+    },
+    hover(item, monitor) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const clientOffset = monitor.getClientOffset();
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+      moveBlock(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: "block",
+    item: () => {
+      return { id: block.id, index };
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(ref));
+
   return (
-    <Draggable draggableId={block.id} index={index}>
-      {(provided) => (
-        <Card
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          className={`mb-4 ${
-            isEditing ? "border-2 border-dashed border-gray-300" : ""
-          }`}
-          style={{
-            width: `${block.width}%`,
-            ...provided.draggableProps.style,
-          }}
-        >
-          {isEditing && (
-            <div className="p-2 bg-gray-100 dark:bg-gray-800 flex justify-between items-center">
-              <div {...provided.dragHandleProps} className="cursor-move">
-                <GripVertical size={20} />
-              </div>
-              <Input
-                type="number"
-                value={block.width}
-                onChange={(e) => updateWidth(block.id, Number(e.target.value))}
-                className="w-20"
-              />
-              <Button
-                onClick={() => deleteBlock(block.id)}
-                variant="destructive"
-                size="sm"
-              >
-                Delete
-              </Button>
-            </div>
-          )}
-          <div className="p-4">{children}</div>
-        </Card>
+    <div
+      ref={ref}
+      className={`${
+        isEditing ? "border-2 border-dashed border-gray-300" : ""
+      } ${isDragging ? "opacity-50" : ""}`}
+      style={{ width: `${block.width}%` }}
+      data-handler-id={handlerId}
+    >
+      {isEditing && (
+        <div className="p-2 bg-gray-100 dark:bg-gray-800 flex justify-between items-center cursor-move">
+          <span>☰</span>
+          <Input
+            type="number"
+            value={block.width}
+            onChange={(e) => updateBlockWidth(block.id, Number(e.target.value))}
+            className="w-20 mx-2"
+          />
+          <Button
+            onClick={() => deleteBlock(block.id)}
+            variant="destructive"
+            size="sm"
+          >
+            Delete
+          </Button>
+        </div>
       )}
-    </Draggable>
+      <div>{children}</div>
+    </div>
   );
 };
 
