@@ -9,11 +9,6 @@ const ChartTooltip = ({ data, position, visible }) => {
     position: "absolute",
     left: `${position.x}px`,
     top: `${position.y}px`,
-    backgroundColor: "white",
-    border: "1px solid #ccc",
-    borderRadius: "8px",
-    padding: "12px",
-    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
     pointerEvents: "none",
     zIndex: 1000,
     transform: "translate(-100%, -100%)",
@@ -24,26 +19,33 @@ const ChartTooltip = ({ data, position, visible }) => {
   const [group, topic, partition] = data.key.split("-");
 
   return (
-    <div style={tooltipStyle} className="card-tooltip">
+    <div
+      style={tooltipStyle}
+      className="card-tooltip bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4"
+    >
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <FolderIcon className="w-4 h-4" />
             <span>{group}</span>
           </div>
-          <h3 className="text-sm font-semibold">{topic}</h3>
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+            {topic}
+          </h3>
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <LayersIcon className="w-4 h-4" />
             <span>Partition {partition}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <ClockIcon className="w-4 h-4" />
             <span>{data.time}</span>
           </div>
         </div>
-        <div className="text-sm font-medium">Lag: {data.lag.toFixed(2)}</div>
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          Lag: {data.lag.toFixed(2)}
+        </div>
       </div>
     </div>
   );
