@@ -8,9 +8,9 @@ export const partitions = [
 ];
 
 export const groupColors = {
-  "Group A": "#ff6b6b",
-  "Group B": "#4ecdc4",
-  "Group C": "#feca57",
+  "Group A": "#4f75f4",
+  "Group B": "#f2c95f",
+  "Group C": "#f15fbb",
 };
 
 export const groupTopicRelations = {
