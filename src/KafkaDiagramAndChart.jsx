@@ -246,7 +246,7 @@ const KafkaDiagramAndChart = () => {
     <div>
       <Card className="mb-4">
         <CardHeader className="flex-row gap-4 items-center">
-          <CardTitle>Show Consumer Groups Diagram (relationship)</CardTitle>
+          <CardTitle>Visualize relationship (internal only)</CardTitle>
           <Switch checked={showDiagram} onCheckedChange={setShowDiagram} />
         </CardHeader>
         <CardContent className="flex space-x-4">
