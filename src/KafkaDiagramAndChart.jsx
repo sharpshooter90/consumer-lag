@@ -26,6 +26,8 @@ import ChartDetailsModal from "./ChartDetailsModal";
 import ThresholdLine from "./ThresholdLine";
 import KafkaDataTable from "./KafkaDataTable";
 import SystemMetricsDashboard from "./SystemMetricsDashboard";
+import LayoutManager from "./LayoutManager";
+
 import {
   generateMockData,
   findNearestDataPoint,
@@ -63,6 +65,13 @@ const KafkaDiagramAndChart = () => {
   const [threshold, setThreshold] = useState(2.25); // Or whatever default value you prefer
 
   const [timeSeriesOption, setTimeSeriesOption] = useState("6h");
+
+  const initialLayout = [
+    { id: "render-filter", width: 100 },
+    { id: "render-diagram", width: 100 },
+    { id: "render-chart", width: 100 },
+    { id: "render-tabs", width: 100 },
+  ];
 
   const containerRef = useRef(null);
   const svgRef = useRef(null);
@@ -118,31 +127,6 @@ const KafkaDiagramAndChart = () => {
     );
     setChartData(newData);
   };
-  // const handleLineHover = useCallback(
-  //   (event, key) => {
-  //     if (svgRef.current) {
-  //       const svgRect = svgRef.current.getBoundingClientRect();
-  //       const mouseX = event.clientX - svgRect.left;
-  //       const mouseY = event.clientY - svgRect.top;
-
-  //       const nearestPoint = findNearestDataPoint(
-  //         mouseX,
-  //         chartData,
-  //         svgRef.current
-  //       );
-  //       if (nearestPoint) {
-  //         setTooltipData({
-  //           key,
-  //           time: nearestPoint.time,
-  //           lag: nearestPoint[key],
-  //         });
-  //         setTooltipPosition({ x: event.clientX, y: event.clientY });
-  //         setHoveredLine(key);
-  //       }
-  //     }
-  //   },
-  //   [chartData]
-  // );
 
   const handleMouseMove = useCallback(
     (event) => {
@@ -424,7 +408,7 @@ const KafkaDiagramAndChart = () => {
     onLineClick
   ) => (
     <FullScreenWrapper>
-      <Card className="mt-8">
+      <Card>
         <CardHeader>
           <CardTitle>Consumer Lag Chart</CardTitle>
           <Input
@@ -647,7 +631,7 @@ const KafkaDiagramAndChart = () => {
     </FullScreenWrapper>
   );
   const renderTabs = () => (
-    <Tabs defaultValue="table" className="mt-8">
+    <Tabs defaultValue="table">
       <TabsList>
         <TabsTrigger value="table">Consumer Lag Data</TabsTrigger>
         <TabsTrigger value="placeholder">
@@ -683,22 +667,30 @@ const KafkaDiagramAndChart = () => {
       <h2 className="text-2xl font-bold mb-4">
         Message Queue Monitoring / Kafka
       </h2>
-      {/* Filters */}
-      {renderFilters()}
 
-      {/* Relationship Diagram */}
-      {renderDiagram()}
-
-      {/* Interactive Consumer Lag Chart */}
-      {renderChart(
-        hoveredTableRow,
-        handleLineHover,
-        handleLineLeave,
-        handleItemClick
-      )}
-
-      {/* Horizontal Tab */}
-      {renderTabs()}
+      <LayoutManager initialLayout={initialLayout} isEditable={true}>
+        <div id="render-filter">
+          {/* Filters */}
+          {renderFilters()}
+        </div>
+        <div id="render-diagram">
+          {/* Relationship Diagram */}
+          {renderDiagram()}
+        </div>
+        <div id="render-chart">
+          {/* Interactive Consumer Lag Chart */}
+          {renderChart(
+            hoveredTableRow,
+            handleLineHover,
+            handleLineLeave,
+            handleItemClick
+          )}
+        </div>
+        <div id="render-tabs">
+          {/* Horizontal Tab */}
+          {renderTabs()}
+        </div>
+      </LayoutManager>
 
       {/* Modal */}
       {renderModal()}

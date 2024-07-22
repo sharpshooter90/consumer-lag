@@ -110,7 +110,7 @@ const KafkaDataTable = ({ chartData, onRowHover, onRowLeave, onItemClick }) => {
   );
 
   return (
-    <Card className="mt-8">
+    <Card>
       <CardHeader>
         <CardTitle>Consumer Lag Data Table</CardTitle>
       </CardHeader>
