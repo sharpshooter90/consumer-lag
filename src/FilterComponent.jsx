@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,12 +6,13 @@ import {
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   FolderIcon,
   TagIcon,
   LayersIcon,
   ChevronDownIcon,
-  XIcon,
+  SearchIcon,
 } from "lucide-react";
 
 const FilterCategory = ({
@@ -20,33 +21,58 @@ const FilterCategory = ({
   selectedItems,
   onSelect,
   icon: Icon,
-}) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button variant="outline" className="justify-between">
-        <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4" />
-          <span>{title}</span>
-        </div>
-        <ChevronDownIcon className="w-4 h-4" />
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent>
-      {items.map((item) => (
-        <DropdownMenuCheckboxItem
-          key={item}
-          checked={selectedItems.includes(item)}
-          onCheckedChange={() => onSelect(item)}
-        >
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item) =>
+      item.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [items, search]);
+
+  return (
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="justify-between">
           <div className="flex items-center gap-2">
             <Icon className="w-4 h-4" />
-            <span>{item}</span>
+            <span>{title}</span>
           </div>
-        </DropdownMenuCheckboxItem>
-      ))}
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
+          <ChevronDownIcon className="w-4 h-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56">
+        <div className="p-2">
+          <div className="flex items-center space-x-2">
+            <SearchIcon className="w-4 h-4 text-gray-500" />
+            <Input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-8"
+            />
+          </div>
+        </div>
+        <div className="max-h-60 overflow-y-auto">
+          {filteredItems.map((item) => (
+            <DropdownMenuCheckboxItem
+              key={item}
+              checked={selectedItems.includes(item)}
+              onCheckedChange={() => onSelect(item)}
+            >
+              <div className="flex items-center gap-2">
+                <Icon className="w-4 h-4" />
+                <span>{item}</span>
+              </div>
+            </DropdownMenuCheckboxItem>
+          ))}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 const FilterChips = ({ title, selectedItems, onRemove, icon: Icon }) =>
   selectedItems.length > 0 && (
